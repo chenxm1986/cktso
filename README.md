@@ -7,7 +7,7 @@ CKTSO is a high-performance parallel sparse direct solver specially designed for
 + a new memory allocation strategy that reduces memory usage; 
 + parallel forward/backward substitutions.
 
-Please refer to doc/results.pdf for the results of CKTSO and comparisons with other solver.
+Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/main/doc/results.pdf) for the results of CKTSO and comparisons with other solver.
 
 
 Author
