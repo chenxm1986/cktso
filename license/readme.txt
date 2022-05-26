@@ -1,0 +1,1 @@
+The license key file should be put together with the library file (*.dll on Windows/*.so on Linux).
