@@ -1,2 +1,6 @@
+Version 202206, build 20220605
+* Update ordering algorithms
+* Bug fix
+
 Version 202205, build 20220519
 * Initial release

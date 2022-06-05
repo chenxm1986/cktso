@@ -3,6 +3,11 @@
 * Copyright (C) Xiaoming Chen, all rights reserved.
 */
 
+/*
+* version 202206
+* build 20220605
+*/
+
 #ifndef __CKTSO__
 #define __CKTSO__
 
@@ -27,8 +32,7 @@
 /********** input parameters int [] **********
 * input parm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
 * input parm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
-* input parm[2]:  ordering method. [default 0]: select best | 1: AMD | 2: AMMO1 | 3: AMMDF | 4: AMMM | 5: AMMO2 | 6: AMMO3 | 7: AMMO4 | 8: AMMO5; 
-                  two digits in decimalism (x0) means selecting best from first x methods
+* input parm[2]:  ordering method. [default 0]: select best from 8 methods | 1~8: corresponding single method | two digits in decimalism (20<=x0<=80) means selecting best from first x methods
 * input parm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
 * input parm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
 * input parm[5]:  max supernode size. [default -1]: no limitation
@@ -38,15 +42,15 @@
 * input parm[9]:  automatic threads control. [default 1]
 * input parm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * input parm[11]: initial # of rows for supernode creation. [default 16]
-* input parm[12]: use new static pivoting method. [default 1]
+* input parm[12]: static pivoting method. 0: conventional | [default >0]: fill-in aware | <0: column size aware
 * input parm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
 ********************************/
 
 /********** output parameters long long [] **********
-* output parm[0]:  time (in microsecond/us) of CKTSO_Analyze
-* output parm[1]:  time (in microsecond/us) of CKTSO_Factorize or CKTSO_Refactorize
-* output parm[2]:  time (in microsecond/us) of CKTSO_Solve
-* output parm[3]:  time (in microsecond/us) of CKTSO_SortFactors
+* output parm[0]:  time (in microsecond/us) of CKTSO(_L)_Analyze
+* output parm[1]:  time (in microsecond/us) of CKTSO(_L)_Factorize or CKTSO(_L)_Refactorize
+* output parm[2]:  time (in microsecond/us) of CKTSO(_L)_Solve
+* output parm[3]:  time (in microsecond/us) of CKTSO(_L)_SortFactors
 * output parm[4]:  # of off-diagonal pivots
 * output parm[5]:  nnz(L), including diagonal
 * output parm[6]:  nnz(U), excluding diagonal
@@ -57,7 +61,7 @@
 * output parm[11]: memory requirement (in bytes) when -4 is returned (for the last malloc/realloc failure)
 * output parm[12]: current memory usage (in bytes)
 * output parm[13]: maximum memory usage (in bytes)
-* output parm[14]: # of rows completed with pivoting reuse in CKTSO_Factorize
+* output parm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
 ********************************/
 
 #undef _IN_
