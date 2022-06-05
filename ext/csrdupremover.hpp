@@ -1,5 +1,6 @@
 //This program removes duplicated entries from CSR arrays
 //It can provide not only a complete set of duplicates-removed ap[], ai[] and ax[] for analysis, but also duplicates-removed ax[] for per factorization/re-factorization
+//Compile with -std=c++11 to use nullptr
 
 #ifndef __CSRDUPREMOVER__
 #define __CSRDUPREMOVER__
