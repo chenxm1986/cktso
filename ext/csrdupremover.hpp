@@ -89,7 +89,7 @@ public:
 	}
 	//Call this function before each factorization/re-factorization, then call ax() to get duplicates-removed CSR array
 	//ForAnalysis must be called before the first call to this function
-	bool ForFactorization(const double ax[])
+	void ForFactorization(const double ax[])
 	{
 		memset(ax_, 0, sizeof(double) * newnz_);
 		for (_int_t i = 0; i < oldnz_; ++i)
