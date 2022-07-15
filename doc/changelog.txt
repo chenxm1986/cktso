@@ -1,3 +1,6 @@
+Version 202207, build 20220715
+* Added natural ordering
+
 Version 202206, build 20220605
 * Update ordering algorithms
 * Bug fix

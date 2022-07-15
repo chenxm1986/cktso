@@ -37,7 +37,7 @@ int main()
     iparm[0] = 1; //enable high-precision timer
 
     //Analyze matrix (one time)
-    ret = instance->Analyze(n, ap, ai, ax, 0, 0);
+    ret = instance->Analyze(n, ap, ai, ax, false, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);
@@ -58,7 +58,7 @@ int main()
         for (int i = 0; i < n; ++i) b[i] *= (double)rand() / RAND_MAX * 2.;
 
         //Factorize matrix
-        if (0 == j) ret = instance->Factorize(ax, 0);
+        if (0 == j) ret = instance->Factorize(ax, false);
         else ret = instance->Refactorize(ax);
         if (ret < 0)
         {
@@ -72,7 +72,7 @@ int main()
         }
 
         //Solve linear system
-        ret = instance->Solve(b, x, 0);
+        ret = instance->Solve(b, x, false);
         if (ret < 0)
         {
             printf("Failed to solve linear system, return code = %d.\n", ret);

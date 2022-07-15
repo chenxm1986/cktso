@@ -1,11 +1,10 @@
 /*
 * CKTSO is a high-performance parallel linear system solver for SPICE-based circuit simulations.
-* Copyright (C) Xiaoming Chen, all rights reserved.
 */
 
 /*
-* version 202206
-* build 20220605
+* version 202207
+* build 20220715
 */
 
 #ifndef __CKTSO__
@@ -32,7 +31,7 @@
 /********** input parameters int [] **********
 * input parm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
 * input parm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
-* input parm[2]:  ordering method. [default 0]: select best from 8 methods | 1~8: corresponding single method | two digits in decimalism (20<=x0<=80) means selecting best from first x methods
+* input parm[2]:  ordering method. [default 0]: select best from 8 methods | 1~8: corresponding single method | two digits in decimalism (20<=x0<=80) means selecting best from first x methods | <0: no ordering
 * input parm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
 * input parm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
 * input parm[5]:  max supernode size. [default -1]: no limitation
@@ -63,6 +62,13 @@
 * output parm[13]: maximum memory usage (in bytes)
 * output parm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
 ********************************/
+
+#ifndef __cplusplus
+/*
+* stdbool.h is added in C99. If the file does not exist, simply replace the following line with "#define bool char"
+*/
+#include <stdbool.h>
+#endif
 
 #undef _IN_
 #define _IN_
@@ -110,7 +116,7 @@ struct __cktso_dummy
         _IN_ const int ap[],
         _IN_ const int ai[],
         _IN_ const double ax[],
-        _IN_ int row0_column1,
+        _IN_ bool row0_column1, 
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -123,7 +129,7 @@ struct __cktso_dummy
     virtual int _CDECL_ Factorize
     (
         _IN_ const double ax[], 
-        _IN_ int fast
+        _IN_ bool fast
     ) = 0;
 
     /*
@@ -147,7 +153,7 @@ struct __cktso_dummy
     (
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
-        _IN_ int force_seq
+        _IN_ bool force_seq
     ) = 0;
 
     /*
@@ -157,7 +163,7 @@ struct __cktso_dummy
     */
     virtual int _CDECL_ SortFactors
     (
-        _IN_ int also_sort_values /*whether to sort values as well*/
+        _IN_ bool also_sort_values /*whether to sort values as well*/
     ) = 0;
 
     /*
@@ -208,7 +214,7 @@ struct __cktso_l_dummy
         _IN_ const long long ap[],
         _IN_ const long long ai[],
         _IN_ const double ax[],
-        _IN_ int row0_column1,
+        _IN_ bool row0_column1, 
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -221,7 +227,7 @@ struct __cktso_l_dummy
     virtual int _CDECL_ Factorize
     (
         _IN_ const double ax[], 
-        _IN_ int fast
+        _IN_ bool fast
     ) = 0;
 
     /*
@@ -245,7 +251,7 @@ struct __cktso_l_dummy
     (
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
-        _IN_ int force_seq
+        _IN_ bool force_seq
     ) = 0;
 
     /*
@@ -255,7 +261,7 @@ struct __cktso_l_dummy
     */
     virtual int _CDECL_ SortFactors
     (
-        _IN_ int also_sort_values /*whether to sort values as well*/
+        _IN_ bool also_sort_values /*whether to sort values as well*/
     ) = 0;
 
     /*
@@ -341,7 +347,7 @@ int CKTSO_Analyze
     _IN_ const int ap[], 
     _IN_ const int ai[], 
     _IN_ const double ax[], 
-    _IN_ int row0_column1,
+    _IN_ bool row0_column1, 
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -352,7 +358,7 @@ int CKTSO_L_Analyze
     _IN_ const long long ap[], 
     _IN_ const long long ai[], 
     _IN_ const double ax[], 
-    _IN_ int row0_column1,
+    _IN_ bool row0_column1, 
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -367,14 +373,14 @@ int CKTSO_Factorize
 (
     _IN_ ICktSo inst, 
     _IN_ const double ax[], 
-    _IN_ int fast
+    _IN_ bool fast
 );
 
 int CKTSO_L_Factorize
 (
     _IN_ ICktSo_L inst,
     _IN_ const double ax[], 
-    _IN_ int fast
+    _IN_ bool fast
 );
 
 /*
@@ -408,7 +414,7 @@ int CKTSO_Solve
     _IN_ ICktSo inst, 
     _IN_ const double b[], 
     _OUT_ double x[], /*x address can be same as b address*/
-    _IN_ int force_seq
+    _IN_ bool force_seq
 );
 
 int CKTSO_L_Solve
@@ -416,7 +422,7 @@ int CKTSO_L_Solve
     _IN_ ICktSo_L inst,
     _IN_ const double b[], 
     _OUT_ double x[], /*x address can be same as b address*/
-    _IN_ int force_seq
+    _IN_ bool force_seq
 );
 
 /*
@@ -427,13 +433,13 @@ int CKTSO_L_Solve
 int CKTSO_SortFactors
 (
     _IN_ ICktSo inst,
-    _IN_ int also_sort_values /*whether to sort values as well*/
+    _IN_ bool also_sort_values /*whether to sort values as well*/
 );
 
 int CKTSO_L_SortFactors
 (
     _IN_ ICktSo_L inst,
-    _IN_ int also_sort_values /*whether to sort values as well*/
+    _IN_ bool also_sort_values /*whether to sort values as well*/
 );
 
 /*

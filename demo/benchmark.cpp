@@ -158,14 +158,14 @@ int main(int argc, char *argv[])
     }
     iparm[0] = 1;
 
-    instance->Analyze(n, ap, ai, ax, 0, atoi(argv[2]));
+    instance->Analyze(n, ap, ai, ax, false, atoi(argv[2]));
     printf("Analysis time = %lld us.\n", oparm[0]);
 
     long long min = LLONG_MAX;
     long long avg = 0;
     for (int i = 0; i < 100; ++i)
     {
-        instance->Factorize(ax, 1);
+        instance->Factorize(ax, true);
         if (oparm[1] < min) min = oparm[1];
         avg += oparm[1];
     }
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
     avg = 0;
     for (int i = 0; i < 100; ++i)
     {
-        instance->Solve(b, x, 0);
+        instance->Solve(b, x, false);
         if (oparm[2] < min) min = oparm[2];
         avg += oparm[2];
     }
