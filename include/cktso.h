@@ -183,7 +183,7 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * CleanupGarbage: cleanups redundant memory
+    * CleanupGarbage: cleans up redundant memory
     */
     virtual int _CDECL_ CleanupGarbage
     (
@@ -281,7 +281,7 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * CleanupGarbage: cleanups redundant memory
+    * CleanupGarbage: cleans up redundant memory
     */
     virtual int _CDECL_ CleanupGarbage
     (
@@ -470,7 +470,7 @@ int CKTSO_L_Statistics
 );
 
 /*
-* CKTSO_CleanupGarbage (CKTSO_L_CleanupGarbage): cleanups redundant memory
+* CKTSO_CleanupGarbage (CKTSO_L_CleanupGarbage): cleans up redundant memory
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 */
 int CKTSO_CleanupGarbage

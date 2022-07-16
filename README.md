@@ -10,6 +10,10 @@ CKTSO is a high-performance parallel sparse direct solver specially designed for
 Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers).
 
 
+Publications
+============
+[1] Xiaoming Chen, "Numerically-Stable and Highly-Scalable Parallel LU Factorization for Circuit Simulation", in 2022 International Conference On Computer Aided Design (ICCAD'22).
+
 Author
 ============
 Please visit [Xiaoming Chen's personal page](http://people.ucas.edu.cn/~chenxm).
