@@ -1,3 +1,6 @@
+Version 202211, build 20221103
+* Internal data structure update
+
 Version 202207, build 20220715
 * Added natural ordering
 

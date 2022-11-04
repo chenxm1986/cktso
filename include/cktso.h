@@ -3,8 +3,8 @@
 */
 
 /*
-* version 202207
-* build 20220715
+* version 202211
+* build 20221103
 */
 
 #ifndef __CKTSO__
@@ -38,7 +38,7 @@
 * input parm[6]:  minimum # of columns for supernode detection. [default 64]
 * input parm[7]:  scaling. [default 0]: no scaling
 * input parm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
-* input parm[9]:  automatic threads control. [default 1]
+* input parm[9]:  automatic thread number control. [default 1]
 * input parm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * input parm[11]: initial # of rows for supernode creation. [default 16]
 * input parm[12]: static pivoting method. 0: conventional | [default >0]: fill-in aware | <0: column size aware
