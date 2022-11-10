@@ -7,7 +7,7 @@ CKTSO is a high-performance parallel sparse direct solver specially designed for
 + a new memory allocation strategy that reduces memory usage; 
 + parallel forward/backward substitutions.
 
-Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers).
+Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers). CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices.
 
 
 Publications
