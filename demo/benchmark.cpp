@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     }
     iparm[0] = 1;
 
-    instance->Analyze(n, ap, ai, ax, false, atoi(argv[2]));
+    instance->Analyze(n, ap, ai, ax, 0, atoi(argv[2]));
     printf("Analysis time = %lld us.\n", oparm[0]);
 
     long long min = LLONG_MAX;

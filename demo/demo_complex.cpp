@@ -38,7 +38,7 @@ int main()
 
     //Analyze matrix
     c2r.ForAnalysis(n, ap, ai, ax);
-    ret = instance->Analyze(c2r.n(), c2r.ap(), c2r.ai(), c2r.ax(), false, 0);
+    ret = instance->Analyze(c2r.n(), c2r.ap(), c2r.ai(), c2r.ax(), 0, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);

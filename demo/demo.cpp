@@ -37,7 +37,7 @@ int main()
     iparm[0] = 1; //enable high-precision timer
 
     //Analyze matrix (one time)
-    ret = instance->Analyze(n, ap, ai, ax, false, 0);
+    ret = instance->Analyze(n, ap, ai, ax, 0, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);

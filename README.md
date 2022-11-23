@@ -9,6 +9,8 @@ CKTSO is a high-performance parallel sparse direct solver specially designed for
 + novel matrix ordering methods, which reduce about 30-40% floating-point operations compared with mainstream methods;
 + an adaptive numerical kernel selection method.
 
+CKTSO has a GPU acceleration module, [CKTSO-GPU](https://github.com/chenxm1986/cktso-gpu), by using CUDA. It provides acceleration for re-factorization as well as forward and backward substitutions for slightly-dense circuit matrices.
+
 Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers). CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices.
 
 

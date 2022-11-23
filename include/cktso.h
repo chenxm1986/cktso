@@ -3,12 +3,12 @@
 */
 
 /*
-* version 202211
-* build 20221103
+* version 20221123
 */
 
 #ifndef __CKTSO__
 #define __CKTSO__
+#include <stddef.h>
 
 /********** error code **********
 *  0:   successful
@@ -48,7 +48,7 @@
 /********** output parameters long long [] **********
 * output parm[0]:  time (in microsecond/us) of CKTSO(_L)_Analyze
 * output parm[1]:  time (in microsecond/us) of CKTSO(_L)_Factorize or CKTSO(_L)_Refactorize
-* output parm[2]:  time (in microsecond/us) of CKTSO(_L)_Solve
+* output parm[2]:  time (in microsecond/us) of CKTSO(_L)_Solve or CKTSO(_L)_SolveMV
 * output parm[3]:  time (in microsecond/us) of CKTSO(_L)_SortFactors
 * output parm[4]:  # of off-diagonal pivots
 * output parm[5]:  nnz(L), including diagonal
@@ -107,7 +107,7 @@ struct __cktso_dummy
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
-    * @row0_column1: 0 means row mode and 1 means column mode
+    * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
     * @threads: # of threads
     */
     virtual int _CDECL_ Analyze
@@ -116,7 +116,7 @@ struct __cktso_dummy
         _IN_ const int ap[],
         _IN_ const int ai[],
         _IN_ const double ax[],
-        _IN_ bool row0_column1, 
+        _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -154,6 +154,20 @@ struct __cktso_dummy
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
         _IN_ bool force_seq
+    ) = 0;
+
+    /*
+    * SolveMV: solves Ax=b with multiple b when A is factorized
+    * Call this routine after Factorize or Refactorize has been called
+    * @nrhs: number of right-hand-side vectors
+    * @b: double array of length n to specify right-hand-side vector
+    * @x: double array of length n to get solution
+    */
+    virtual int _CDECL_ SolveMV
+    (
+        _IN_ size_t nrhs, 
+        _IN_ const double b[],
+        _OUT_ double x[] /*x address can be same as b address*/
     ) = 0;
 
     /*
@@ -205,7 +219,7 @@ struct __cktso_l_dummy
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
-    * @row0_column1: 0 means row mode and 1 means column mode
+    * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
     * @threads: # of threads
     */
     virtual int _CDECL_ Analyze
@@ -214,7 +228,7 @@ struct __cktso_l_dummy
         _IN_ const long long ap[],
         _IN_ const long long ai[],
         _IN_ const double ax[],
-        _IN_ bool row0_column1, 
+        _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -252,6 +266,20 @@ struct __cktso_l_dummy
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
         _IN_ bool force_seq
+    ) = 0;
+
+    /*
+    * SolveMV: solves Ax=b with multiple b when A is factorized
+    * Call this routine after Factorize or Refactorize has been called
+    * @nrhs: number of right-hand-side vectors
+    * @b: double array of length n to specify right-hand-side vector
+    * @x: double array of length n to get solution
+    */
+    virtual int _CDECL_ SolveMV
+    (
+        _IN_ size_t nrhs,
+        _IN_ const double b[],
+        _OUT_ double x[] /*x address can be same as b address*/
     ) = 0;
 
     /*
@@ -337,7 +365,7 @@ int CKTSO_L_DestroySolver
 * @ap: integer array of length n+1, matrix row pointers
 * @ai: integer array of length ap[n], matrix column indexes
 * @ax: double array of length ap[n], matrix values
-* @row0_column1: 0 means row mode and 1 means column mode
+* @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
 * @threads: # of threads
 */
 int CKTSO_Analyze
@@ -347,7 +375,7 @@ int CKTSO_Analyze
     _IN_ const int ap[], 
     _IN_ const int ai[], 
     _IN_ const double ax[], 
-    _IN_ bool row0_column1, 
+    _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -358,7 +386,7 @@ int CKTSO_L_Analyze
     _IN_ const long long ap[], 
     _IN_ const long long ai[], 
     _IN_ const double ax[], 
-    _IN_ bool row0_column1, 
+    _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -423,6 +451,30 @@ int CKTSO_L_Solve
     _IN_ const double b[], 
     _OUT_ double x[], /*x address can be same as b address*/
     _IN_ bool force_seq
+);
+
+/*
+* CKTSO_SolveMV (CKTSO_L_SolveMV): solves Ax=b with multiple b when A is factorized
+* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @nrhs: number of right-hand-side vectors
+* @b: double array of length n to specify right-hand-side vector
+* @x: double array of length n to get solution
+*/
+int CKTSO_SolveMV
+(
+    _IN_ ICktSo inst,
+    _IN_ size_t nrhs, 
+    _IN_ const double b[],
+    _OUT_ double x[] /*x address can be same as b address*/
+);
+
+int CKTSO_L_SolveMV
+(
+    _IN_ ICktSo_L inst,
+    _IN_ size_t nrhs,
+    _IN_ const double b[],
+    _OUT_ double x[] /*x address can be same as b address*/
 );
 
 /*

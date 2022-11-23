@@ -1,12 +1,17 @@
-Version 202211, build 20221103
+Version 20221123
+* GPU acceleration module is added. Please visit https://github.com/chenxm1986/cktso-gpu.
+* A transposed mode is added (for GPU acceleration of column-order stored matrices)
+* Support for multiple right-side vectors is added
+
+Version 20221103
 * Internal data structure update
 
-Version 202207, build 20220715
+Version 20220715
 * Added natural ordering
 
-Version 202206, build 20220605
+Version 20220605
 * Update ordering algorithms
 * Bug fix
 
-Version 202205, build 20220519
+Version 20220519
 * Initial release
