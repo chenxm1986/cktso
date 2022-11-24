@@ -160,8 +160,8 @@ struct __cktso_dummy
     * SolveMV: solves Ax=b with multiple b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
     * @nrhs: number of right-hand-side vectors
-    * @b: double array of length n to specify right-hand-side vector
-    * @x: double array of length n to get solution
+    * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
+    * @x: double array of length n*nrhs to get solutions, vector by vector
     */
     virtual int _CDECL_ SolveMV
     (
@@ -272,8 +272,8 @@ struct __cktso_l_dummy
     * SolveMV: solves Ax=b with multiple b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
     * @nrhs: number of right-hand-side vectors
-    * @b: double array of length n to specify right-hand-side vector
-    * @x: double array of length n to get solution
+    * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
+    * @x: double array of length n*nrhs to get solutions, vector by vector
     */
     virtual int _CDECL_ SolveMV
     (
@@ -458,8 +458,8 @@ int CKTSO_L_Solve
 * Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @nrhs: number of right-hand-side vectors
-* @b: double array of length n to specify right-hand-side vector
-* @x: double array of length n to get solution
+* @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
+* @x: double array of length n*nrhs to get solutions, vector by vector
 */
 int CKTSO_SolveMV
 (
