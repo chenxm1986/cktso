@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20221123
+* version 20221201
 */
 
 #ifndef __CKTSO__
@@ -108,14 +108,14 @@ struct __cktso_dummy
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
     * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
-    * @threads: # of threads
+    * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
     (
         _IN_ int n,
         _IN_ const int ap[],
         _IN_ const int ai[],
-        _IN_ const double ax[],
+        _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
         _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
@@ -197,10 +197,22 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * CleanupGarbage: cleans up redundant memory
+    * CleanUpGarbage: cleans up redundant memory
     */
-    virtual int _CDECL_ CleanupGarbage
+    virtual int _CDECL_ CleanUpGarbage
     (
+    ) = 0;
+
+    /*
+    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
+    * Call this routine after Factorize or Refactorize has been called
+    * @mantissa: mantissa of determinant
+    * @exponent: exponent of determinant
+    */
+    virtual int _CDECL_ Determinant
+    (
+        _OUT_ double *mantissa, 
+        _OUT_ double *exponent
     ) = 0;
 };
 
@@ -220,14 +232,14 @@ struct __cktso_l_dummy
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
     * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
-    * @threads: # of threads
+    * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
     (
         _IN_ long long n,
         _IN_ const long long ap[],
         _IN_ const long long ai[],
-        _IN_ const double ax[],
+        _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
         _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
@@ -309,10 +321,22 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * CleanupGarbage: cleans up redundant memory
+    * CleanUpGarbage: cleans up redundant memory
     */
-    virtual int _CDECL_ CleanupGarbage
+    virtual int _CDECL_ CleanUpGarbage
     (
+    ) = 0;
+
+    /*
+    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
+    * Call this routine after Factorize or Refactorize has been called
+    * @mantissa: mantissa of determinant
+    * @exponent: exponent of determinant
+    */
+    virtual int _CDECL_ Determinant
+    (
+        _OUT_ double *mantissa,
+        _OUT_ double *exponent
     ) = 0;
 };
 #endif/*__cplusplus*/
@@ -366,7 +390,7 @@ int CKTSO_L_DestroySolver
 * @ai: integer array of length ap[n], matrix column indexes
 * @ax: double array of length ap[n], matrix values
 * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
-* @threads: # of threads
+* @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
 */
 int CKTSO_Analyze
 (
@@ -374,7 +398,7 @@ int CKTSO_Analyze
     _IN_ int n, 
     _IN_ const int ap[], 
     _IN_ const int ai[], 
-    _IN_ const double ax[], 
+    _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
     _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
@@ -385,7 +409,7 @@ int CKTSO_L_Analyze
     _IN_ long long n, 
     _IN_ const long long ap[], 
     _IN_ const long long ai[], 
-    _IN_ const double ax[], 
+    _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
     _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
@@ -522,17 +546,37 @@ int CKTSO_L_Statistics
 );
 
 /*
-* CKTSO_CleanupGarbage (CKTSO_L_CleanupGarbage): cleans up redundant memory
+* CKTSO_CleanUpGarbage (CKTSO_L_CleanUpGarbage): cleans up redundant memory
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 */
-int CKTSO_CleanupGarbage
+int CKTSO_CleanUpGarbage
 (
     _IN_ ICktSo inst
 );
 
-int CKTSO_L_CleanupGarbage
+int CKTSO_L_CleanUpGarbage
 (
     _IN_ ICktSo_L inst
+);
+
+/*
+* CKTSO_Determinant (CKTSO_L_Determinant): calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
+* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
+* @mantissa: mantissa of determinant
+* @exponent: exponent of determinant
+*/
+int CKTSO_Determinant
+(
+    _IN_ ICktSo inst, 
+    _OUT_ double *mantissa, 
+    _OUT_ double *exponent
+);
+
+int CKTSO_L_Determinant
+(
+    _IN_ ICktSo_L inst,
+    _OUT_ double *mantissa,
+    _OUT_ double *exponent
 );
 
 #ifdef __cplusplus

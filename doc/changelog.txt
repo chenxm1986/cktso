@@ -1,5 +1,8 @@
+Version 20221201
+* Calculation of determinant is added
+
 Version 20221123
-* GPU acceleration module is added. Please visit https://github.com/chenxm1986/cktso-gpu.
+* GPU acceleration module is added. Please visit https://github.com/chenxm1986/cktso-gpu
 * A transposed mode is added (for GPU acceleration of column-order stored matrices)
 * Support for multiple right-side vectors is added
 
