@@ -37,7 +37,7 @@ int main()
     iparm[0] = 1; //enable high-precision timer
 
     //Analyze matrix (one time)
-    ret = instance->Analyze(n, ap, ai, ax, 0, 0);
+    ret = instance->Analyze(n, ap, ai, ax, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);
@@ -72,7 +72,7 @@ int main()
         }
 
         //Solve linear system
-        ret = instance->Solve(b, x, false);
+        ret = instance->Solve(b, x, false, false);
         if (ret < 0)
         {
             printf("Failed to solve linear system, return code = %d.\n", ret);
@@ -107,7 +107,7 @@ int main()
     printf("Memory usage = %lld bytes.\n", oparm[12]);
     printf("Max memory usage = %lld bytes.\n", oparm[13]);
     long long f1, f2;
-    ret = instance->Statistics(&f1, &f2, NULL, NULL);
+    ret = instance->Statistics(&f1, &f2, NULL, NULL, false);
     if (ret < 0)
     {
         printf("Failed to retrieve statistics information, return code = %d.\n", ret);

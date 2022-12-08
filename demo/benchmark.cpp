@@ -87,23 +87,48 @@ bool ReadMtxFile(const char file[], int &n, int *&ap, int *&ai, double *&ax)
     return true;
 }
 
-double L2NormOfResidual(const int n, const int ap[], const int ai[], const double ax[], const double x[], const double b[])
+double L2NormOfResidual(const int n, const int ap[], const int ai[], const double ax[], const double x[], const double b[], bool row0_col1)
 {
-    double s = 0.;
-    for (int i = 0; i < n; ++i)
+    if (row0_col1)
     {
-        double r = 0.;
-        const int start = ap[i];
-        const int end = ap[i + 1];
-        for (int p = start; p < end; ++p)
+        double *bb = new double[n];
+        memcpy(bb, b, sizeof(double) * n);
+        for (int i = 0; i < n; ++i)
         {
-            const int j = ai[p];
-            r += ax[p] * x[j];
+            const double xx = x[i];
+            const int start = ap[i];
+            const int end = ap[i + 1];
+            for (int p = start; p < end; ++p)
+            {
+                bb[ai[p]] -= xx * ax[p];
+            }
         }
-        r -= b[i];
-        s += r * r;
+        double s = 0.;
+        for (int i = 0; i < n; ++i)
+        {
+            s += bb[i] * bb[i];
+        }
+        delete[]bb;
+        return sqrt(s);
     }
-    return sqrt(s);
+    else
+    {
+        double s = 0.;
+        for (int i = 0; i < n; ++i)
+        {
+            double r = 0.;
+            const int start = ap[i];
+            const int end = ap[i + 1];
+            for (int p = start; p < end; ++p)
+            {
+                const int j = ai[p];
+                r += ax[p] * x[j];
+            }
+            r -= b[i];
+            s += r * r;
+        }
+        return sqrt(s);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -158,7 +183,7 @@ int main(int argc, char *argv[])
     }
     iparm[0] = 1;
 
-    instance->Analyze(n, ap, ai, ax, 0, atoi(argv[2]));
+    instance->Analyze(n, ap, ai, ax, atoi(argv[2]));
     printf("Analysis time = %lld us.\n", oparm[0]);
 
     long long min = LLONG_MAX;
@@ -185,18 +210,30 @@ int main(int argc, char *argv[])
     avg = 0;
     for (int i = 0; i < 100; ++i)
     {
-        instance->Solve(b, x, false);
+        instance->Solve(b, x, false, false);
         if (oparm[2] < min) min = oparm[2];
         avg += oparm[2];
     }
     printf("Solve average time = %lld us, min time = %lld us.\n", avg / 100, min);
 
-    printf("Residual = %g.\n", L2NormOfResidual(n, ap, ai, ax, x, b));
+    printf("Residual = %g.\n", L2NormOfResidual(n, ap, ai, ax, x, b, false));
+
+    min = LLONG_MAX;
+    avg = 0;
+    for (int i = 0; i < 100; ++i)
+    {
+        instance->Solve(b, x, false, true);
+        if (oparm[2] < min) min = oparm[2];
+        avg += oparm[2];
+    }
+    printf("Transposed solve average time = %lld us, min time = %lld us.\n", avg / 100, min);
+
+    printf("Residual = %g.\n", L2NormOfResidual(n, ap, ai, ax, x, b, true));
 
     printf("NNZ(L) = %lld, NNZ(U) = %lld.\n", oparm[5], oparm[6]);
 
     long long f1, f2;
-    instance->Statistics(&f1, &f2, NULL, NULL);
+    instance->Statistics(&f1, &f2, NULL, NULL, false);
     printf("Factorization flops = %lld, solve flops = %lld.\n", f1, f2);
 
     printf("Memory usage = %lld bytes, max memory usage = %lld bytes.\n", oparm[12], oparm[13]);

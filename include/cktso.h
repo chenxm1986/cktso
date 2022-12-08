@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20221201
+* version 20221207
 */
 
 #ifndef __CKTSO__
@@ -107,7 +107,6 @@ struct __cktso_dummy
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
-    * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
@@ -116,7 +115,6 @@ struct __cktso_dummy
         _IN_ const int ap[],
         _IN_ const int ai[],
         _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
-        _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -124,7 +122,7 @@ struct __cktso_dummy
     * Factorize: factorizes matrix with partial pivoting
     * Call this routine after Analyze has been called
     * @ax: double array of length ap[n], matrix values
-    * @fast: whether to use fast factorization
+    * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
     virtual int _CDECL_ Factorize
     (
@@ -148,12 +146,14 @@ struct __cktso_dummy
     * @b: double array of length n to specify right-hand-side vector
     * @x: double array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
+    * @row0_column1: row or column mode
     */
     virtual int _CDECL_ Solve
     (
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
-        _IN_ bool force_seq
+        _IN_ bool force_seq, 
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -162,12 +162,14 @@ struct __cktso_dummy
     * @nrhs: number of right-hand-side vectors
     * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
     * @x: double array of length n*nrhs to get solutions, vector by vector
+    * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
     (
         _IN_ size_t nrhs, 
         _IN_ const double b[],
-        _OUT_ double x[] /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address*/
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -187,13 +189,15 @@ struct __cktso_dummy
     * @solve_flops: pointer to a 64b integer to retrieve flops of solve
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
     * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
+    * @row0_column1: row or column mode (affects solve_mem)
     */
     virtual int _CDECL_ Statistics
     (
         _OUT_ long long *factor_flops, 
         _OUT_ long long *solve_flops, 
         _OUT_ long long *factor_mem, 
-        _OUT_ long long *solve_mem
+        _OUT_ long long *solve_mem, 
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -231,7 +235,6 @@ struct __cktso_l_dummy
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
     * @ax: double array of length ap[n], matrix values
-    * @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
@@ -240,7 +243,6 @@ struct __cktso_l_dummy
         _IN_ const long long ap[],
         _IN_ const long long ai[],
         _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
-        _IN_ int row0_colposi_trannega,
         _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
     ) = 0;
 
@@ -248,7 +250,7 @@ struct __cktso_l_dummy
     * Factorize: factorizes matrix with partial pivoting
     * Call this routine after Analyze has been called
     * @ax: double array of length ap[n], matrix values
-    * @fast: whether to use fast factorization
+    * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
     virtual int _CDECL_ Factorize
     (
@@ -272,12 +274,14 @@ struct __cktso_l_dummy
     * @b: double array of length n to specify right-hand-side vector
     * @x: double array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
+    * @row0_column1: row or column mode
     */
     virtual int _CDECL_ Solve
     (
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address*/
-        _IN_ bool force_seq
+        _IN_ bool force_seq, 
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -286,12 +290,14 @@ struct __cktso_l_dummy
     * @nrhs: number of right-hand-side vectors
     * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
     * @x: double array of length n*nrhs to get solutions, vector by vector
+    * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
     (
         _IN_ size_t nrhs,
         _IN_ const double b[],
-        _OUT_ double x[] /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address*/
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -311,13 +317,15 @@ struct __cktso_l_dummy
     * @solve_flops: pointer to a 64b integer to retrieve flops of solve
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
     * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
+    * @row0_column1: row or column mode (affects solve_mem)
     */
     virtual int _CDECL_ Statistics
     (
         _OUT_ long long *factor_flops, 
         _OUT_ long long *solve_flops, 
         _OUT_ long long *factor_mem, 
-        _OUT_ long long *solve_mem
+        _OUT_ long long *solve_mem, 
+        _IN_ bool row0_column1
     ) = 0;
 
     /*
@@ -389,7 +397,6 @@ int CKTSO_L_DestroySolver
 * @ap: integer array of length n+1, matrix row pointers
 * @ai: integer array of length ap[n], matrix column indexes
 * @ax: double array of length ap[n], matrix values
-* @row0_colposi_trannega: 0 means row mode, positive means column mode, negative means transposed mode
 * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
 */
 int CKTSO_Analyze
@@ -399,7 +406,6 @@ int CKTSO_Analyze
     _IN_ const int ap[], 
     _IN_ const int ai[], 
     _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
-    _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -410,7 +416,6 @@ int CKTSO_L_Analyze
     _IN_ const long long ap[], 
     _IN_ const long long ai[], 
     _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
-    _IN_ int row0_colposi_trannega,
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
 
@@ -419,7 +424,7 @@ int CKTSO_L_Analyze
 * Call this routine after CKTSO_Analyze (CKTSO_L_Analyze) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @ax: double array of length ap[n], matrix values
-* @fast: whether to use fast factorization
+* @fast: whether to use fast factorization (skips symbolic, but checks pivots)
 */
 int CKTSO_Factorize
 (
@@ -460,13 +465,15 @@ int CKTSO_L_Refactorize
 * @b: double array of length n to specify right-hand-side vector
 * @x: double array of length n to get solution
 * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
+* @row0_column1: row or column mode
 */
 int CKTSO_Solve
 (
     _IN_ ICktSo inst, 
     _IN_ const double b[], 
     _OUT_ double x[], /*x address can be same as b address*/
-    _IN_ bool force_seq
+    _IN_ bool force_seq, 
+    _IN_ bool row0_column1
 );
 
 int CKTSO_L_Solve
@@ -474,7 +481,8 @@ int CKTSO_L_Solve
     _IN_ ICktSo_L inst,
     _IN_ const double b[], 
     _OUT_ double x[], /*x address can be same as b address*/
-    _IN_ bool force_seq
+    _IN_ bool force_seq, 
+    _IN_ bool row0_column1
 );
 
 /*
@@ -484,13 +492,15 @@ int CKTSO_L_Solve
 * @nrhs: number of right-hand-side vectors
 * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
 * @x: double array of length n*nrhs to get solutions, vector by vector
+* @row0_column1: row or column mode
 */
 int CKTSO_SolveMV
 (
     _IN_ ICktSo inst,
     _IN_ size_t nrhs, 
     _IN_ const double b[],
-    _OUT_ double x[] /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address*/
+    _IN_ bool row0_column1
 );
 
 int CKTSO_L_SolveMV
@@ -498,7 +508,8 @@ int CKTSO_L_SolveMV
     _IN_ ICktSo_L inst,
     _IN_ size_t nrhs,
     _IN_ const double b[],
-    _OUT_ double x[] /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address*/
+    _IN_ bool row0_column1
 );
 
 /*
@@ -526,6 +537,7 @@ int CKTSO_L_SortFactors
 * @solve_flops: pointer to a 64b integer to retrieve flops of solve
 * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
 * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
+* @row0_column1: row or column mode (affects solve_mem)
 */
 int CKTSO_Statistics
 (
@@ -533,7 +545,8 @@ int CKTSO_Statistics
     _OUT_ long long *factor_flops, 
     _OUT_ long long *solve_flops, 
     _OUT_ long long *factor_mem, 
-    _OUT_ long long *solve_mem
+    _OUT_ long long *solve_mem, 
+    _IN_ bool row0_column1
 );
 
 int CKTSO_L_Statistics
@@ -542,7 +555,8 @@ int CKTSO_L_Statistics
     _OUT_ long long *factor_flops, 
     _OUT_ long long *solve_flops, 
     _OUT_ long long *factor_mem, 
-    _OUT_ long long *solve_mem
+    _OUT_ long long *solve_mem, 
+    _IN_ bool row0_column1
 );
 
 /*

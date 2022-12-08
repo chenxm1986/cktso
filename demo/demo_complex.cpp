@@ -38,7 +38,7 @@ int main()
 
     //Analyze matrix
     c2r.ForAnalysis(n, ap, ai, ax);
-    ret = instance->Analyze(c2r.n(), c2r.ap(), c2r.ai(), c2r.ax(), 0, 0);
+    ret = instance->Analyze(c2r.n(), c2r.ap(), c2r.ai(), c2r.ax(), 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);
@@ -65,7 +65,7 @@ int main()
     }
 
     //Solve linear system
-    ret = instance->Solve(b, x, false);
+    ret = instance->Solve(b, x, false, false);
     if (ret < 0)
     {
         printf("Failed to solve linear system, return code = %d.\n", ret);
@@ -84,7 +84,7 @@ int main()
     printf("Memory usage = %lld bytes.\n", oparm[12]);
     printf("Max memory usage = %lld bytes.\n", oparm[13]);
     long long f1, f2;
-    ret = instance->Statistics(&f1, &f2, NULL, NULL);
+    ret = instance->Statistics(&f1, &f2, NULL, NULL, false);
     if (ret < 0)
     {
         printf("Failed to retrieve statistics information, return code = %d.\n", ret);

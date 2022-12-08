@@ -1,5 +1,5 @@
 //This program removes duplicated entries from CSR arrays
-//It can provide not only a complete set of duplicates-removed ap[], ai[] and ax[] for analysis, but also duplicates-removed ax[] for per factorization/re-factorization
+//It can provide a complete set of duplicates-removed ap[], ai[] and ax[] for analysis, or duplicates-removed ax[] for per factorization/re-factorization
 //Compile with -std=c++11 to use nullptr
 
 #ifndef __CSRDUPREMOVER__
@@ -32,6 +32,7 @@ public:
 		delete []ptr_;
 	}
 	//Call this function before analysis, then call ap(), ai() and ax() to get duplicates-removed CSR arrays
+	//ax[] can be nullptr, if the values are unavailable when analysis
 	bool ForAnalysis(_int_t n, const _int_t ap[], const _int_t ai[], const double ax[])
 	{
 		n_ = 0;
@@ -56,32 +57,60 @@ public:
 		if (nullptr == flag) return false;
 		memset(flag, -1, sizeof(_int_t) * n_);
 		_int_t *pos = flag + n_;
-
 		newnz_ = 0;
 		ap_[0] = 0;
-		for (_int_t i = 0; i < n_; ++i)
+
+		if (ax != nullptr)
 		{
-			const _int_t end = ap[i + 1];
-			for (_int_t p = ap[i]; p < end; ++p)
+			for (_int_t i = 0; i < n_; ++i)
 			{
-				const _int_t j = ai[p];
-				if (flag[j] != i)
+				const _int_t end = ap[i + 1];
+				for (_int_t p = ap[i]; p < end; ++p)
 				{
-					flag[j] = i;
-					ai_[newnz_] = j;
-					ax_[newnz_] = ax[p];
-					ptr_[p] = newnz_;
-					pos[j] = newnz_;
-					++newnz_;
+					const _int_t j = ai[p];
+					if (flag[j] != i)
+					{
+						flag[j] = i;
+						ai_[newnz_] = j;
+						ax_[newnz_] = ax[p];
+						ptr_[p] = newnz_;
+						pos[j] = newnz_;
+						++newnz_;
+					}
+					else
+					{
+						const _int_t tp = pos[j];
+						ptr_[p] = tp;
+						ax_[tp] += ax[p];
+					}
 				}
-				else
-				{
-					const _int_t tp = pos[j];
-					ptr_[p] = tp;
-					ax_[tp] += ax[p];
-				}
+				ap_[i + 1] = newnz_;
 			}
-			ap_[i + 1] = newnz_;
+		}
+		else
+		{
+			for (_int_t i = 0; i < n_; ++i)
+			{
+				const _int_t end = ap[i + 1];
+				for (_int_t p = ap[i]; p < end; ++p)
+				{
+					const _int_t j = ai[p];
+					if (flag[j] != i)
+					{
+						flag[j] = i;
+						ai_[newnz_] = j;
+						ptr_[p] = newnz_;
+						pos[j] = newnz_;
+						++newnz_;
+					}
+					else
+					{
+						const _int_t tp = pos[j];
+						ptr_[p] = tp;
+					}
+				}
+				ap_[i + 1] = newnz_;
+			}
 		}
 
 		delete []flag;
