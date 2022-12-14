@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        printf("Usage: benchmark <mtx file> <# of threads>\n");
-        printf("Example: benchmark add20.mtx 4\n");
+        printf("Usage: benchmark_complex <mtx file> <# of threads>\n");
+        printf("Example: benchmark_complex add20.mtx 4\n");
         return -1;
     }
 
