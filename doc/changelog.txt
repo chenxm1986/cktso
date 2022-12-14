@@ -1,3 +1,6 @@
+Version 20221214
+* Native support for complex matrices is added (also for CKTSO-GPU), interface changed
+
 Version 20221207
 * Modified selection method of row/column mode (for some simulators that require solve and tsolve at the same time), interface changed
 

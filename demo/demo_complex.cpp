@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "cktso.h"
-#include "complex2real.hpp"
 #ifdef _MSC_VER
 #pragma comment(lib, "cktso.lib")
 #endif
@@ -22,7 +21,6 @@ int main()
     int ap[7] = { 0, 3, 5, 7, 8, 10, 13 };
     double b[12] = { -2.9, 141.37, -20.8, 193.7, -6.4, 23.9, 7.2, -62.8, -21.66, 221.05, -36.36, 355.54 };
     double x[12];
-    ComplexToReal c2r;
 
     //Create solver instance
     ICktSo instance = nullptr;
@@ -37,8 +35,7 @@ int main()
     iparm[0] = 1; //enable high-precision timer
 
     //Analyze matrix
-    c2r.ForAnalysis(n, ap, ai, ax);
-    ret = instance->Analyze(c2r.n(), c2r.ap(), c2r.ai(), c2r.ax(), 0);
+    ret = instance->Analyze(true, n, ap, ai, ax, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);
@@ -51,8 +48,7 @@ int main()
     }
 
     //Factorize matrix
-    c2r.ForFactorization(ax);
-    ret = instance->Factorize(c2r.ax(), false);
+    ret = instance->Factorize(ax, true);
     if (ret < 0)
     {
         printf("Failed to factorize matrix, return code = %d.\n", ret);
@@ -62,6 +58,19 @@ int main()
     else
     {
         printf("Factorization time = %lld us.\n", oparm[1]);
+    }
+
+    //Refactorize matrix
+    ret = instance->Refactorize(ax);
+    if (ret < 0)
+    {
+        printf("Failed to refactorize matrix, return code = %d.\n", ret);
+        instance->DestroySolver();
+        return ret;
+    }
+    else
+    {
+        printf("Refactorization time = %lld us.\n", oparm[1]);
     }
 
     //Solve linear system
@@ -95,6 +104,18 @@ int main()
     {
         printf("Factorization flops = %lld.\n", f1);
         printf("Solve flops = %lld.\n", f2);
+    }
+    double mantissa[2], exponent;
+    ret = instance->Determinant(mantissa, &exponent);
+    if (ret < 0)
+    {
+        printf("Failed to calculate determinent, return code = %d.\n", ret);
+        instance->DestroySolver();
+        return ret;
+    }
+    else
+    {
+        printf("Determinent = (%g,%g)*10^(%g).\n", mantissa[0], mantissa[1], exponent);
     }
 
     instance->DestroySolver();

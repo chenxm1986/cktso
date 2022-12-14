@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20221207
+* version 20221214
 */
 
 #ifndef __CKTSO__
@@ -103,14 +103,16 @@ struct __cktso_dummy
 
     /*
     * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering
+    * @is_complex: complex or real
     * @n: matrix dimension
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
     (
+        _IN_ bool is_complex, 
         _IN_ int n,
         _IN_ const int ap[],
         _IN_ const int ai[],
@@ -121,7 +123,7 @@ struct __cktso_dummy
     /*
     * Factorize: factorizes matrix with partial pivoting
     * Call this routine after Analyze has been called
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
     virtual int _CDECL_ Factorize
@@ -133,7 +135,7 @@ struct __cktso_dummy
     /*
     * Refactorize: refactorizes matrix without partial pivoting
     * Call this routine after Factorize has been called
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     */
     virtual int _CDECL_ Refactorize
     (
@@ -143,8 +145,8 @@ struct __cktso_dummy
     /*
     * Solve: solves Ax=b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
-    * @b: double array of length n to specify right-hand-side vector
-    * @x: double array of length n to get solution
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
     * @row0_column1: row or column mode
     */
@@ -160,8 +162,8 @@ struct __cktso_dummy
     * SolveMV: solves Ax=b with multiple b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
     * @nrhs: number of right-hand-side vectors
-    * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
-    * @x: double array of length n*nrhs to get solutions, vector by vector
+    * @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
+    * @x: double/complex array of length n*nrhs to get solutions, vector by vector
     * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
@@ -210,7 +212,7 @@ struct __cktso_dummy
     /*
     * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
     * Call this routine after Factorize or Refactorize has been called
-    * @mantissa: mantissa of determinant
+    * @mantissa: mantissa of determinant (double or complex)
     * @exponent: exponent of determinant
     */
     virtual int _CDECL_ Determinant
@@ -231,14 +233,16 @@ struct __cktso_l_dummy
 
     /*
     * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering
+    * @is_complex: complex or real
     * @n: matrix dimension
     * @ap: integer array of length n+1, matrix row pointers
     * @ai: integer array of length ap[n], matrix column indexes
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     */
     virtual int _CDECL_ Analyze
     (
+        _IN_ bool is_complex, 
         _IN_ long long n,
         _IN_ const long long ap[],
         _IN_ const long long ai[],
@@ -249,7 +253,7 @@ struct __cktso_l_dummy
     /*
     * Factorize: factorizes matrix with partial pivoting
     * Call this routine after Analyze has been called
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
     virtual int _CDECL_ Factorize
@@ -261,7 +265,7 @@ struct __cktso_l_dummy
     /*
     * Refactorize: refactorizes matrix without partial pivoting
     * Call this routine after Factorize has been called
-    * @ax: double array of length ap[n], matrix values
+    * @ax: double/complex array of length ap[n], matrix values
     */
     virtual int _CDECL_ Refactorize
     (
@@ -271,8 +275,8 @@ struct __cktso_l_dummy
     /*
     * Solve: solves Ax=b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
-    * @b: double array of length n to specify right-hand-side vector
-    * @x: double array of length n to get solution
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
     * @row0_column1: row or column mode
     */
@@ -288,8 +292,8 @@ struct __cktso_l_dummy
     * SolveMV: solves Ax=b with multiple b when A is factorized
     * Call this routine after Factorize or Refactorize has been called
     * @nrhs: number of right-hand-side vectors
-    * @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
-    * @x: double array of length n*nrhs to get solutions, vector by vector
+    * @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
+    * @x: double/complex array of length n*nrhs to get solutions, vector by vector
     * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
@@ -338,7 +342,7 @@ struct __cktso_l_dummy
     /*
     * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
     * Call this routine after Factorize or Refactorize has been called
-    * @mantissa: mantissa of determinant
+    * @mantissa: mantissa of determinant (double or complex)
     * @exponent: exponent of determinant
     */
     virtual int _CDECL_ Determinant
@@ -393,15 +397,17 @@ int CKTSO_L_DestroySolver
 /*
 * CKTSO_Analyze (CKTSO_L_Analyze): analyzes matrix for static pivoting and fillin-reduction ordering
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @is_complex: complex or real
 * @n: matrix dimension
 * @ap: integer array of length n+1, matrix row pointers
 * @ai: integer array of length ap[n], matrix column indexes
-* @ax: double array of length ap[n], matrix values
+* @ax: double/complex array of length ap[n], matrix values
 * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
 */
 int CKTSO_Analyze
 (
     _IN_ ICktSo inst, 
+    _IN_ bool is_complex, 
     _IN_ int n, 
     _IN_ const int ap[], 
     _IN_ const int ai[], 
@@ -412,6 +418,7 @@ int CKTSO_Analyze
 int CKTSO_L_Analyze
 (
     _IN_ ICktSo_L inst,
+    _IN_ bool is_complex, 
     _IN_ long long n, 
     _IN_ const long long ap[], 
     _IN_ const long long ai[], 
@@ -423,7 +430,7 @@ int CKTSO_L_Analyze
 * CKTSO_Factorize (CKTSO_L_Factorize): factorizes matrix with partial pivoting
 * Call this routine after CKTSO_Analyze (CKTSO_L_Analyze) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
-* @ax: double array of length ap[n], matrix values
+* @ax: double/complex array of length ap[n], matrix values
 * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
 */
 int CKTSO_Factorize
@@ -444,7 +451,7 @@ int CKTSO_L_Factorize
 * CKTSO_Refactorize (CKTSO_L_Refactorize): refactorizes matrix without partial pivoting
 * Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
-* @ax: double array of length ap[n], matrix values
+* @ax: double/complex array of length ap[n], matrix values
 */
 int CKTSO_Refactorize
 (
@@ -462,8 +469,8 @@ int CKTSO_L_Refactorize
 * CKTSO_Solve (CKTSO_L_Solve): solves Ax=b when A is factorized
 * Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
-* @b: double array of length n to specify right-hand-side vector
-* @x: double array of length n to get solution
+* @b: double/complex array of length n to specify right-hand-side vector
+* @x: double/complex array of length n to get solution
 * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
 * @row0_column1: row or column mode
 */
@@ -490,8 +497,8 @@ int CKTSO_L_Solve
 * Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @nrhs: number of right-hand-side vectors
-* @b: double array of length n*nrhs to specify right-hand-side vectors, vector by vector
-* @x: double array of length n*nrhs to get solutions, vector by vector
+* @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
+* @x: double/complex array of length n*nrhs to get solutions, vector by vector
 * @row0_column1: row or column mode
 */
 int CKTSO_SolveMV
@@ -576,7 +583,7 @@ int CKTSO_L_CleanUpGarbage
 /*
 * CKTSO_Determinant (CKTSO_L_Determinant): calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
 * Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
-* @mantissa: mantissa of determinant
+* @mantissa: mantissa of determinant (double or complex)
 * @exponent: exponent of determinant
 */
 int CKTSO_Determinant

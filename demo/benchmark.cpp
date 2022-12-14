@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     }
     iparm[0] = 1;
 
-    instance->Analyze(n, ap, ai, ax, atoi(argv[2]));
+    instance->Analyze(false, n, ap, ai, ax, atoi(argv[2]));
     printf("Analysis time = %lld us.\n", oparm[0]);
 
     long long min = LLONG_MAX;
@@ -235,6 +235,10 @@ int main(int argc, char *argv[])
     long long f1, f2;
     instance->Statistics(&f1, &f2, NULL, NULL, false);
     printf("Factorization flops = %lld, solve flops = %lld.\n", f1, f2);
+
+    double mantissa, exponent;
+    instance->Determinant(&mantissa, &exponent);
+    printf("Determinent = %g*10^(%g).\n", mantissa, exponent);
 
     printf("Memory usage = %lld bytes, max memory usage = %lld bytes.\n", oparm[12], oparm[13]);
 

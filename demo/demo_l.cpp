@@ -37,7 +37,7 @@ int main()
     iparm[0] = 1; //enable high-precision timer
 
     //Analyze matrix (one time)
-    ret = instance->Analyze(n, ap, ai, ax, 0);
+    ret = instance->Analyze(false, n, ap, ai, ax, 0);
     if (ret < 0)
     {
         printf("Failed to analyze matrix, return code = %d.\n", ret);
@@ -58,7 +58,7 @@ int main()
         for (long long i = 0; i < n; ++i) b[i] *= (double)rand() / RAND_MAX * 2.;
 
         //Factorize matrix
-        if (0 == j) ret = instance->Factorize(ax, false);
+        if (0 == j) ret = instance->Factorize(ax, true);
         else ret = instance->Refactorize(ax);
         if (ret < 0)
         {
@@ -118,6 +118,18 @@ int main()
     {
         printf("Factorization flops = %lld.\n", f1);
         printf("Solve flops = %lld.\n", f2);
+    }
+    double mantissa, exponent;
+    ret = instance->Determinant(&mantissa, &exponent);
+    if (ret < 0)
+    {
+        printf("Failed to calculate determinent, return code = %d.\n", ret);
+        instance->DestroySolver();
+        return ret;
+    }
+    else
+    {
+        printf("Determinent = %g*10^(%g).\n", mantissa, exponent);
     }
 
     instance->DestroySolver();
