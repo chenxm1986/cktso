@@ -1,3 +1,7 @@
+Version 20221230
+* A wrapper is added for languages that do not have pointers to pointers
+* Fixed a small glitch (no impact on result correctness)
+
 Version 20221214
 * Native support for complex matrices is added (also for CKTSO-GPU), interface changed
 

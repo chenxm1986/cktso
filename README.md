@@ -15,6 +15,12 @@ CKTSO has an associated **GPU acceleration** module, [CKTSO-GPU](https://github.
 
 Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers). CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices.
 
+Notes on Library and Integer Bitwidths
+============
+Only x86-64 libraries are provided. This means that, a 64-bit Windows or Linux operating system is needed.
+
+Functions for both 32-bit integers and 64-bit integers are provided. The latter has '_L' in the function names. The integer bitwidth is only for the input matrix. The internal data structures always use 64-bit integers.
+
 
 Publications
 ============
