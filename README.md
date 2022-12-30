@@ -19,7 +19,7 @@ Notes on Library and Integer Bitwidths
 ============
 Only x86-64 libraries are provided. This means that, a 64-bit Windows or Linux operating system is needed.
 
-Functions for both 32-bit integers and 64-bit integers are provided. The latter has '_L' in the function names. The integer bitwidth is only for the input matrix. The internal data structures always use 64-bit integers.
+Functions for both 32-bit integers and 64-bit integers are provided. The latter has '_L' in the function names. The integer bitwidth only limits the size of the input matrix. The internal data structures always use 64-bit integers.
 
 
 Publications
