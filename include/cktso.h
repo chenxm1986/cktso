@@ -153,7 +153,7 @@ struct __cktso_dummy
     virtual int _CDECL_ Solve
     (
         _IN_ const double b[],
-        _OUT_ double x[], /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool force_seq, 
         _IN_ bool row0_column1
     ) = 0;
@@ -170,7 +170,7 @@ struct __cktso_dummy
     (
         _IN_ size_t nrhs, 
         _IN_ const double b[],
-        _OUT_ double x[], /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool row0_column1
     ) = 0;
 
@@ -283,7 +283,7 @@ struct __cktso_l_dummy
     virtual int _CDECL_ Solve
     (
         _IN_ const double b[],
-        _OUT_ double x[], /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool force_seq, 
         _IN_ bool row0_column1
     ) = 0;
@@ -300,7 +300,7 @@ struct __cktso_l_dummy
     (
         _IN_ size_t nrhs,
         _IN_ const double b[],
-        _OUT_ double x[], /*x address can be same as b address*/
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool row0_column1
     ) = 0;
 
@@ -478,7 +478,7 @@ int CKTSO_Solve
 (
     _IN_ ICktSo inst, 
     _IN_ const double b[], 
-    _OUT_ double x[], /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
     _IN_ bool force_seq, 
     _IN_ bool row0_column1
 );
@@ -487,7 +487,7 @@ int CKTSO_L_Solve
 (
     _IN_ ICktSo_L inst,
     _IN_ const double b[], 
-    _OUT_ double x[], /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
     _IN_ bool force_seq, 
     _IN_ bool row0_column1
 );
@@ -506,7 +506,7 @@ int CKTSO_SolveMV
     _IN_ ICktSo inst,
     _IN_ size_t nrhs, 
     _IN_ const double b[],
-    _OUT_ double x[], /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
     _IN_ bool row0_column1
 );
 
@@ -515,7 +515,7 @@ int CKTSO_L_SolveMV
     _IN_ ICktSo_L inst,
     _IN_ size_t nrhs,
     _IN_ const double b[],
-    _OUT_ double x[], /*x address can be same as b address*/
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
     _IN_ bool row0_column1
 );
 
