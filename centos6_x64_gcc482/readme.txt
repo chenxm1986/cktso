@@ -1,0 +1,1 @@
+The libraries compiled on CentOS 6 can be used on many mainstream Linux systems.

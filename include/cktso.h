@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20221230
+* version 20230203
 */
 
 #ifndef __CKTSO__
@@ -24,6 +24,7 @@
 * -10:  not supported
 * -11:  file error
 * -12:  integer overflow
+* -13:  resource leak
 * -99:  license error
 * -100: unknown error
 ********************************/
@@ -43,6 +44,7 @@
 * input parm[11]: initial # of rows for supernode creation. [default 16]
 * input parm[12]: static pivoting method. 0: conventional | [default >0]: fill-in aware | <0: column size aware
 * input parm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
+* input parm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
 ********************************/
 
 /********** output parameters long long [] **********

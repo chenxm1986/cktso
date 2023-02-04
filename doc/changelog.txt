@@ -1,3 +1,7 @@
+Version 20230203
+* Added an input parameter iparm[14] (timeout value of threads exiting)
+* Added an error code -13 (resource leak)
+
 Version 20221230
 * A wrapper is added for languages that do not have pointers to pointers
 * Fixed a small glitch (no impact on result correctness)

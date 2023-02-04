@@ -1,0 +1,1 @@
+The libraries compiled for Windows 10 can also be used on Windows 11. However, they use some new APIs that do not exist on Windows 7 so they cannot be used on Windows 7.
