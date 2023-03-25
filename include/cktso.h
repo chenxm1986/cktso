@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20230203
+* version 20230325
 */
 
 #ifndef __CKTSO__
@@ -42,7 +42,7 @@
 * input parm[9]:  automatic thread number control. [default 1]
 * input parm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * input parm[11]: initial # of rows for supernode creation. [default 16]
-* input parm[12]: static pivoting method. 0: conventional | [default >0]: fill-in aware | <0: column size aware
+* input parm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze when ax=NULL). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
 * input parm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
 * input parm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
 ********************************/
@@ -63,6 +63,7 @@
 * output parm[12]: current memory usage (in bytes)
 * output parm[13]: maximum memory usage (in bytes)
 * output parm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
+* output parm[15]: time (in microsecond/us) of CKTSO(_L)_FactorizeAndSolve or CKTSO(_L)_RefactorizeAndSolve
 ********************************/
 
 #ifndef __cplusplus
@@ -88,6 +89,7 @@ typedef struct __cktso_l_dummy *ICktSo_L;
 */
 #ifdef __cplusplus
 #undef _CDECL_
+/*Visual C++ compiler passes 'this' pointer via ECX on Windows X86, which is different from __cdecl, so __cdecl must be declared in this case*/
 #if (defined(_MSC_VER) && !defined(_M_X64) && !defined(_WIN64))
 #define _CDECL_ __cdecl
 #else
@@ -97,14 +99,14 @@ typedef struct __cktso_l_dummy *ICktSo_L;
 struct __cktso_dummy
 {
     /*
-    * DestroySolver: frees everything and destroys solver instance
+    * DestroySolver: frees everything and destroys solver instance.
     */
     virtual int _CDECL_ DestroySolver
     (
     ) = 0;
 
     /*
-    * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering
+    * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
     * @is_complex: complex or real
     * @n: matrix dimension
     * @ap: integer array of length n+1, matrix row pointers
@@ -123,8 +125,7 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * Factorize: factorizes matrix with partial pivoting
-    * Call this routine after Analyze has been called
+    * Factorize: factorizes matrix with pivoting (call this routine after matrix has been analyzed).
     * @ax: double/complex array of length ap[n], matrix values
     * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
@@ -135,8 +136,7 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * Refactorize: refactorizes matrix without partial pivoting
-    * Call this routine after Factorize has been called
+    * Refactorize: refactorizes matrix without pivoting (call this routine after matrix has been factorized with pivoting).
     * @ax: double/complex array of length ap[n], matrix values
     */
     virtual int _CDECL_ Refactorize
@@ -145,8 +145,7 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * Solve: solves Ax=b when A is factorized
-    * Call this routine after Factorize or Refactorize has been called
+    * Solve: solves Ax=b after A is factorized (call this routine after matrix has been factorized or refactorized).
     * @b: double/complex array of length n to specify right-hand-side vector
     * @x: double/complex array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
@@ -161,25 +160,27 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * SolveMV: solves Ax=b with multiple b when A is factorized
-    * Call this routine after Factorize or Refactorize has been called
+    * SolveMV: solves Ax=b with multiple b after A is factorized (call this routine after matrix has been factorized or refactorized).
     * @nrhs: number of right-hand-side vectors
-    * @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
-    * @x: double/complex array of length n*nrhs to get solutions, vector by vector
+    * @b: double/complex array of length ld_b*nrhs to specify right-hand-side vectors, vector by vector
+    * @ld_b: leading dimension of two-dimensional matrix b
+    * @x: double/complex array of length ld_x*nrhs to get solutions, vector by vector
+    * @ld_x: leading dimension of two-dimensional matrix x
     * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
     (
         _IN_ size_t nrhs, 
         _IN_ const double b[],
+        _IN_ size_t ld_b, /*if ld_b=0, ld_b=n*/
         _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ size_t ld_x, /*if ld_x=0, ld_x=n*/
         _IN_ bool row0_column1
     ) = 0;
 
     /*
-    * SortFactors: sorts indexes and/or values of LU factors
-    * Call this routine after Factorize has been called
-    * @also_sort_values: whether to sort values as well
+    * SortFactors: sorts indexes and/or values of LU factors (call this routine after matrix has been factorized with pivoting).
+    * @also_sort_values: whether to sort values as well, false for only sorting indexes
     */
     virtual int _CDECL_ SortFactors
     (
@@ -187,8 +188,7 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * Statistics: calculates # of floating-point operations and memory access volumes
-    * Call this routine after Factorize has been called
+    * Statistics: calculates # of floating-point operations and memory access volumes (call this routine after matrix has been factorized with pivoting).
     * @factor_flops: pointer to a 64b integer to retrieve flops of factor
     * @solve_flops: pointer to a 64b integer to retrieve flops of solve
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
@@ -205,15 +205,14 @@ struct __cktso_dummy
     ) = 0;
 
     /*
-    * CleanUpGarbage: cleans up redundant memory
+    * CleanUpGarbage: cleans up redundant memory.
     */
     virtual int _CDECL_ CleanUpGarbage
     (
     ) = 0;
 
     /*
-    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
-    * Call this routine after Factorize or Refactorize has been called
+    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10) (call this routine after matrix has been factorized or refactorized).
     * @mantissa: mantissa of determinant (double or complex)
     * @exponent: exponent of determinant
     */
@@ -222,19 +221,49 @@ struct __cktso_dummy
         _OUT_ double *mantissa, 
         _OUT_ double *exponent
     ) = 0;
+
+    /*
+    * FactorizeAndSolve: factorizes matrix with pivoting and then solves Ax=b (call this routine after matrix has been analyzed).
+    * @ax: double/complex array of length ap[n], matrix values
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
+    * @row0_column1: row or column mode
+    */
+    virtual int _CDECL_ FactorizeAndSolve
+    (
+        _IN_ const double ax[],
+        _IN_ const double b[],
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ bool row0_column1
+    ) = 0;
+
+    /*
+    * RefactorizeAndSolve: refactorizes matrix without pivoting and then solves Ax=b (call this routine after matrix has been factorized with pivoting).
+    * @ax: double/complex array of length ap[n], matrix values
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
+    * @row0_column1: row or column mode
+    */
+    virtual int _CDECL_ RefactorizeAndSolve
+    (
+        _IN_ const double ax[],
+        _IN_ const double b[],
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ bool row0_column1
+    ) = 0;
 };
 
 struct __cktso_l_dummy
 {
     /*
-    * DestroySolver: frees everything and destroys solver instance
+    * DestroySolver: frees everything and destroys solver instance.
     */
     virtual int _CDECL_ DestroySolver
     (
     ) = 0;
 
     /*
-    * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering
+    * Analyze: analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
     * @is_complex: complex or real
     * @n: matrix dimension
     * @ap: integer array of length n+1, matrix row pointers
@@ -253,8 +282,7 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * Factorize: factorizes matrix with partial pivoting
-    * Call this routine after Analyze has been called
+    * Factorize: factorizes matrix with pivoting (call this routine after matrix has been analyzed).
     * @ax: double/complex array of length ap[n], matrix values
     * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
     */
@@ -265,8 +293,7 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * Refactorize: refactorizes matrix without partial pivoting
-    * Call this routine after Factorize has been called
+    * Refactorize: refactorizes matrix without pivoting (call this routine after matrix has been factorized with pivoting).
     * @ax: double/complex array of length ap[n], matrix values
     */
     virtual int _CDECL_ Refactorize
@@ -275,8 +302,7 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * Solve: solves Ax=b when A is factorized
-    * Call this routine after Factorize or Refactorize has been called
+    * Solve: solves Ax=b after A is factorized (call this routine after matrix has been factorized or refactorized).
     * @b: double/complex array of length n to specify right-hand-side vector
     * @x: double/complex array of length n to get solution
     * @force_seq: force to use sequential solve (if not, solver automatically decides sequential or parallel)
@@ -291,25 +317,27 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * SolveMV: solves Ax=b with multiple b when A is factorized
-    * Call this routine after Factorize or Refactorize has been called
+    * SolveMV: solves Ax=b with multiple b after A is factorized (call this routine after matrix has been factorized or refactorized).
     * @nrhs: number of right-hand-side vectors
-    * @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
-    * @x: double/complex array of length n*nrhs to get solutions, vector by vector
+    * @b: double/complex array of length ld_b*nrhs to specify right-hand-side vectors, vector by vector
+    * @ld_b: leading dimension of two-dimensional matrix b
+    * @x: double/complex array of length ld_x*nrhs to get solutions, vector by vector
+    * @ld_x: leading dimension of two-dimensional matrix x
     * @row0_column1: row or column mode
     */
     virtual int _CDECL_ SolveMV
     (
         _IN_ size_t nrhs,
         _IN_ const double b[],
+        _IN_ size_t ld_b, /*if ld_b=0, ld_b=n*/
         _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ size_t ld_x, /*if ld_x=0, ld_x=n*/
         _IN_ bool row0_column1
     ) = 0;
 
     /*
-    * SortFactors: sorts indexes and/or values of LU factors
-    * Call this routine after Factorize has been called
-    * @also_sort_values: whether to sort values as well
+    * SortFactors: sorts indexes and/or values of LU factors (call this routine after matrix has been factorized with pivoting).
+    * @also_sort_values: whether to sort values as well, false for only sorting indexes
     */
     virtual int _CDECL_ SortFactors
     (
@@ -317,8 +345,7 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * Statistics: calculates # of floating-point operations and memory access volumes
-    * Call this routine after Factorize has been called
+    * Statistics: calculates # of floating-point operations and memory access volumes (call this routine after matrix has been factorized with pivoting).
     * @factor_flops: pointer to a 64b integer to retrieve flops of factor
     * @solve_flops: pointer to a 64b integer to retrieve flops of solve
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
@@ -335,15 +362,14 @@ struct __cktso_l_dummy
     ) = 0;
 
     /*
-    * CleanUpGarbage: cleans up redundant memory
+    * CleanUpGarbage: cleans up redundant memory.
     */
     virtual int _CDECL_ CleanUpGarbage
     (
     ) = 0;
 
     /*
-    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
-    * Call this routine after Factorize or Refactorize has been called
+    * Determinant: calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10) (call this routine after matrix has been factorized or refactorized).
     * @mantissa: mantissa of determinant (double or complex)
     * @exponent: exponent of determinant
     */
@@ -351,6 +377,36 @@ struct __cktso_l_dummy
     (
         _OUT_ double *mantissa,
         _OUT_ double *exponent
+    ) = 0;
+
+    /*
+    * FactorizeAndSolve: factorizes matrix with pivoting and then solves Ax=b (call this routine after matrix has been analyzed).
+    * @ax: double/complex array of length ap[n], matrix values
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
+    * @row0_column1: row or column mode
+    */
+    virtual int _CDECL_ FactorizeAndSolve
+    (
+        _IN_ const double ax[],
+        _IN_ const double b[],
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ bool row0_column1
+    ) = 0;
+
+    /*
+    * RefactorizeAndSolve: refactorizes matrix without pivoting and then solves Ax=b (call this routine after matrix has been factorized with pivoting).
+    * @ax: double/complex array of length ap[n], matrix values
+    * @b: double/complex array of length n to specify right-hand-side vector
+    * @x: double/complex array of length n to get solution
+    * @row0_column1: row or column mode
+    */
+    virtual int _CDECL_ RefactorizeAndSolve
+    (
+        _IN_ const double ax[],
+        _IN_ const double b[],
+        _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+        _IN_ bool row0_column1
     ) = 0;
 };
 #endif/*__cplusplus*/
@@ -363,7 +419,7 @@ extern "C" {
 #endif
 
 /*
-* CKTSO_CreateSolver (CKTSO_L_CreateSolver): creates solve instance and retrieves parameter array pointers
+* CKTSO_CreateSolver (CKTSO_L_CreateSolver): creates solve instance and retrieves parameter array pointers.
 * @inst: pointer to an ICktSo (ICktSo_L) instance that retrieves created instance handle
 * @iparm: pointer to input parameter list array (see annotations above)
 * @oparm: pointer to output parameter list array (see annotations above)
@@ -374,8 +430,19 @@ int CKTSO_CreateSolver
     _OUT_ int **iparm, /*can be NULL if not needed*/
     _OUT_ const long long **oparm /*can be NULL if not needed*/
 );
-
 int CKTSO_L_CreateSolver
+(
+    _OUT_ ICktSo_L *inst,
+    _OUT_ int **iparm, /*can be NULL if not needed*/
+    _OUT_ const long long **oparm /*can be NULL if not needed*/
+);
+int CKTSO_CreateSolverNoCheck /*no check on whether AVX2 and FMA are supported*/
+(
+    _OUT_ ICktSo *inst,
+    _OUT_ int **iparm, /*can be NULL if not needed*/
+    _OUT_ const long long **oparm /*can be NULL if not needed*/
+);
+int CKTSO_L_CreateSolverNoCheck /*no check on whether AVX2 and FMA are supported*/
 (
     _OUT_ ICktSo_L *inst,
     _OUT_ int **iparm, /*can be NULL if not needed*/
@@ -383,21 +450,20 @@ int CKTSO_L_CreateSolver
 );
 
 /*
-* CKTSO_DestroySolver (CKTSO_L_DestroySolver): frees everything and destroys solver
+* CKTSO_DestroySolver (CKTSO_L_DestroySolver): frees everything and destroys solver.
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 */
 int CKTSO_DestroySolver
 (
     _IN_ ICktSo inst
 );
-
 int CKTSO_L_DestroySolver
 (
     _IN_ ICktSo_L inst
 );
 
 /*
-* CKTSO_Analyze (CKTSO_L_Analyze): analyzes matrix for static pivoting and fillin-reduction ordering
+* CKTSO_Analyze (CKTSO_L_Analyze): analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @is_complex: complex or real
 * @n: matrix dimension
@@ -416,7 +482,6 @@ int CKTSO_Analyze
     _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
     _IN_ int threads /*0=use all physical cores. -1=use all logical cores*/
 );
-
 int CKTSO_L_Analyze
 (
     _IN_ ICktSo_L inst,
@@ -429,8 +494,7 @@ int CKTSO_L_Analyze
 );
 
 /*
-* CKTSO_Factorize (CKTSO_L_Factorize): factorizes matrix with partial pivoting
-* Call this routine after CKTSO_Analyze (CKTSO_L_Analyze) has been called
+* CKTSO_Factorize (CKTSO_L_Factorize): factorizes matrix with pivoting (call this routine after matrix has been analyzed)
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @ax: double/complex array of length ap[n], matrix values
 * @fast: whether to use fast factorization (skips symbolic, but checks pivots)
@@ -441,7 +505,6 @@ int CKTSO_Factorize
     _IN_ const double ax[], 
     _IN_ bool fast
 );
-
 int CKTSO_L_Factorize
 (
     _IN_ ICktSo_L inst,
@@ -450,8 +513,7 @@ int CKTSO_L_Factorize
 );
 
 /*
-* CKTSO_Refactorize (CKTSO_L_Refactorize): refactorizes matrix without partial pivoting
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) has been called
+* CKTSO_Refactorize (CKTSO_L_Refactorize): refactorizes matrix without pivoting (call this routine after matrix has been factorized with pivoting).
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @ax: double/complex array of length ap[n], matrix values
 */
@@ -460,7 +522,6 @@ int CKTSO_Refactorize
     _IN_ ICktSo inst, 
     _IN_ const double ax[]
 );
-
 int CKTSO_L_Refactorize
 (
     _IN_ ICktSo_L inst,
@@ -468,8 +529,7 @@ int CKTSO_L_Refactorize
 );
 
 /*
-* CKTSO_Solve (CKTSO_L_Solve): solves Ax=b when A is factorized
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
+* CKTSO_Solve (CKTSO_L_Solve): solves Ax=b after A is factorized (call this routine after matrix has been factorized or refactorized).
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @b: double/complex array of length n to specify right-hand-side vector
 * @x: double/complex array of length n to get solution
@@ -484,7 +544,6 @@ int CKTSO_Solve
     _IN_ bool force_seq, 
     _IN_ bool row0_column1
 );
-
 int CKTSO_L_Solve
 (
     _IN_ ICktSo_L inst,
@@ -495,12 +554,13 @@ int CKTSO_L_Solve
 );
 
 /*
-* CKTSO_SolveMV (CKTSO_L_SolveMV): solves Ax=b with multiple b when A is factorized
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
+* CKTSO_SolveMV (CKTSO_L_SolveMV): solves Ax=b with multiple b after A is factorized (call this routine after matrix has been factorized or refactorized).
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @nrhs: number of right-hand-side vectors
-* @b: double/complex array of length n*nrhs to specify right-hand-side vectors, vector by vector
-* @x: double/complex array of length n*nrhs to get solutions, vector by vector
+* @b: double/complex array of length ld_b*nrhs to specify right-hand-side vectors, vector by vector
+* @ld_b: leading dimension of two-dimensional matrix b
+* @x: double/complex array of length ld_x*nrhs to get solutions, vector by vector
+* @ld_x: leading dimension of two-dimensional matrix x
 * @row0_column1: row or column mode
 */
 int CKTSO_SolveMV
@@ -508,30 +568,32 @@ int CKTSO_SolveMV
     _IN_ ICktSo inst,
     _IN_ size_t nrhs, 
     _IN_ const double b[],
+    _IN_ size_t ld_b, /*if ld_b=0, ld_b=n*/
     _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ size_t ld_x, /*if ld_x=0, ld_x=n*/
     _IN_ bool row0_column1
 );
-
 int CKTSO_L_SolveMV
 (
     _IN_ ICktSo_L inst,
     _IN_ size_t nrhs,
     _IN_ const double b[],
+    _IN_ size_t ld_b, /*if ld_b=0, ld_b=n*/
     _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ size_t ld_x, /*if ld_x=0, ld_x=n*/
     _IN_ bool row0_column1
 );
 
 /*
-* CKTSO_SortFactors (CKTSO_L_SortFactors): sorts indexes and/or values of LU factors
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) has been called
-* @also_sort_values: whether to sort values as well
+* CKTSO_SortFactors (CKTSO_L_SortFactors): sorts indexes and/or values of LU factors (call this routine after matrix has been factorized with pivoting).
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @also_sort_values: whether to sort values as well, false for only sorting indexes
 */
 int CKTSO_SortFactors
 (
     _IN_ ICktSo inst,
     _IN_ bool also_sort_values /*whether to sort values as well*/
 );
-
 int CKTSO_L_SortFactors
 (
     _IN_ ICktSo_L inst,
@@ -539,8 +601,7 @@ int CKTSO_L_SortFactors
 );
 
 /*
-* CKTSO_Statistics (CKTSO_L_Statistics): calculates # of floating-point operations and memory access volumes
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) has been called
+* CKTSO_Statistics (CKTSO_L_Statistics): calculates # of floating-point operations and memory access volumes (call this routine after matrix has been factorized with pivoting).
 * @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @factor_flops: pointer to a 64b integer to retrieve flops of factor
 * @solve_flops: pointer to a 64b integer to retrieve flops of solve
@@ -557,7 +618,6 @@ int CKTSO_Statistics
     _OUT_ long long *solve_mem, 
     _IN_ bool row0_column1
 );
-
 int CKTSO_L_Statistics
 (
     _IN_ ICktSo_L inst,
@@ -576,15 +636,14 @@ int CKTSO_CleanUpGarbage
 (
     _IN_ ICktSo inst
 );
-
 int CKTSO_L_CleanUpGarbage
 (
     _IN_ ICktSo_L inst
 );
 
 /*
-* CKTSO_Determinant (CKTSO_L_Determinant): calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10)
-* Call this routine after CKTSO_Factorize (CKTSO_L_Factorize) or CKTSO_Refactorize (CKTSO_L_Refactorize) has been called
+* CKTSO_Determinant (CKTSO_L_Determinant): calculates determinant (mantissa*10^exponent, where 1 <= abs(mantissa) < 10) (call this routine after matrix has been factorized or refactorized).
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
 * @mantissa: mantissa of determinant (double or complex)
 * @exponent: exponent of determinant
 */
@@ -594,12 +653,61 @@ int CKTSO_Determinant
     _OUT_ double *mantissa, 
     _OUT_ double *exponent
 );
-
 int CKTSO_L_Determinant
 (
     _IN_ ICktSo_L inst,
     _OUT_ double *mantissa,
     _OUT_ double *exponent
+);
+
+/*
+* CKTSO_FactorizeAndSolve (CKTSO_L_FactorizeAndSolve): factorizes matrix with pivoting and then solves Ax=b (call this routine after matrix has been analyzed).
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @ax: double/complex array of length ap[n], matrix values
+* @b: double/complex array of length n to specify right-hand-side vector
+* @x: double/complex array of length n to get solution
+* @row0_column1: row or column mode
+*/
+int CKTSO_FactorizeAndSolve
+(
+    _IN_ ICktSo inst,
+    _IN_ const double ax[],
+    _IN_ const double b[],
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ bool row0_column1
+);
+int CKTSO_L_FactorizeAndSolve
+(
+    _IN_ ICktSo_L inst,
+    _IN_ const double ax[],
+    _IN_ const double b[],
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ bool row0_column1
+);
+
+/*
+* CKTSO_RefactorizeAndSolve (CKTSO_L_RefactorizeAndSolve): refactorizes matrix without pivoting and then solves Ax=b (call this routine after matrix has been factorized with pivoting).
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @ax: double/complex array of length ap[n], matrix values
+* @b: double/complex array of length n to specify right-hand-side vector
+* @x: double/complex array of length n to get solution
+* @row0_column1: row or column mode
+*/
+int CKTSO_RefactorizeAndSolve
+(
+    _IN_ ICktSo inst,
+    _IN_ const double ax[],
+    _IN_ const double b[],
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ bool row0_column1
+);
+int CKTSO_L_RefactorizeAndSolve
+(
+    _IN_ ICktSo_L inst,
+    _IN_ const double ax[],
+    _IN_ const double b[],
+    _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
+    _IN_ bool row0_column1
 );
 
 #ifdef __cplusplus

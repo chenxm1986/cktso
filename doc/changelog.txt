@@ -1,3 +1,11 @@
+Version 20230325
+* Fixed a bug in fast factorization
+* Added two high-level functions that heuristically determine fast factorization and parallel solving
+* Added CKTSO_CreateSolverNoCheck that does not check the supportability of FMA and AVX2,  which can be used on virtual machines
+* Added two arguments to CKTSO_SolveMV that represent the leading dimensions
+* Reduced latency for CKTSO_CreateSolver
+* Updated static pivoting algorithms
+
 Version 20230203
 * Added an input parameter iparm[14] (timeout value of threads exiting)
 * Added an error code -13 (resource leak)

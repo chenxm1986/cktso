@@ -32,6 +32,19 @@ _PUBLIC_ __cktso_wrapper *CKTSO2_CreateSolver()
 	return wrapper;
 }
 
+_PUBLIC_ __cktso_wrapper *CKTSO2_CreateSolverNoCheck()
+{
+	__cktso_wrapper *wrapper = (__cktso_wrapper *)malloc(sizeof(__cktso_wrapper));
+	if (NULL == wrapper) return NULL;
+	int ret = CKTSO_CreateSolverNoCheck(&wrapper->handle, &wrapper->iparm, &wrapper->oparm);
+	if (ret != 0)
+	{
+		free(wrapper);
+		return NULL;
+	}
+	return wrapper;
+}
+
 _PUBLIC_ void CKTSO2_SetInputParameter(__cktso_wrapper *wrapper, int id, int value)
 {
 	wrapper->iparm[id] = value;
@@ -69,9 +82,9 @@ _PUBLIC_ int CKTSO2_Solve(__cktso_wrapper *wrapper, const double b[], double x[]
 	return CKTSO_Solve(wrapper->handle, b, x, force_seq, row0_column1);
 }
 
-_PUBLIC_ int CKTSO2_SolveMV(__cktso_wrapper *wrapper, size_t nrhs, const double b[], double x[], bool row0_column1)
+_PUBLIC_ int CKTSO2_SolveMV(__cktso_wrapper *wrapper, size_t nrhs, const double b[], size_t ld_b, double x[], size_t ld_x, bool row0_column1)
 {
-	return CKTSO_SolveMV(wrapper->handle, nrhs, b, x, row0_column1);
+	return CKTSO_SolveMV(wrapper->handle, nrhs, b, ld_b, x, ld_x, row0_column1);
 }
 
 _PUBLIC_ int CKTSO2_SortFactors(__cktso_wrapper *wrapper, bool sort_values)
@@ -94,6 +107,16 @@ _PUBLIC_ int CKTSO2_Determinant(__cktso_wrapper *wrapper, double *mantissa, doub
 	return CKTSO_Determinant(wrapper->handle, mantissa, exponent);
 }
 
+_PUBLIC_ int CKTSO2_FactorizeAndSolve(__cktso_wrapper *wrapper, const double ax[], const double b[], double x[], bool row0_column1)
+{
+	return CKTSO_FactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
+}
+
+_PUBLIC_ int CKTSO2_RefactorizeAndSolve(__cktso_wrapper *wrapper, const double ax[], const double b[], double x[], bool row0_column1)
+{
+	return CKTSO_RefactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct
 {
@@ -107,6 +130,19 @@ _PUBLIC_ __cktso_l_wrapper *CKTSO2_L_CreateSolver()
 	__cktso_l_wrapper *wrapper = (__cktso_l_wrapper *)malloc(sizeof(__cktso_l_wrapper));
 	if (NULL == wrapper) return NULL;
 	int ret = CKTSO_L_CreateSolver(&wrapper->handle, &wrapper->iparm, &wrapper->oparm);
+	if (ret != 0)
+	{
+		free(wrapper);
+		return NULL;
+	}
+	return wrapper;
+}
+
+_PUBLIC_ __cktso_l_wrapper *CKTSO2_L_CreateSolverNoCheck()
+{
+	__cktso_l_wrapper *wrapper = (__cktso_l_wrapper *)malloc(sizeof(__cktso_l_wrapper));
+	if (NULL == wrapper) return NULL;
+	int ret = CKTSO_L_CreateSolverNoCheck(&wrapper->handle, &wrapper->iparm, &wrapper->oparm);
 	if (ret != 0)
 	{
 		free(wrapper);
@@ -152,9 +188,9 @@ _PUBLIC_ int CKTSO2_L_Solve(__cktso_l_wrapper *wrapper, const double b[], double
 	return CKTSO_L_Solve(wrapper->handle, b, x, force_seq, row0_column1);
 }
 
-_PUBLIC_ int CKTSO2_L_SolveMV(__cktso_l_wrapper *wrapper, size_t nrhs, const double b[], double x[], bool row0_column1)
+_PUBLIC_ int CKTSO2_L_SolveMV(__cktso_l_wrapper *wrapper, size_t nrhs, const double b[], size_t ld_b, double x[], size_t ld_x, bool row0_column1)
 {
-	return CKTSO_L_SolveMV(wrapper->handle, nrhs, b, x, row0_column1);
+	return CKTSO_L_SolveMV(wrapper->handle, nrhs, b, ld_b, x, ld_x, row0_column1);
 }
 
 _PUBLIC_ int CKTSO2_L_SortFactors(__cktso_l_wrapper *wrapper, bool sort_values)
@@ -175,4 +211,14 @@ _PUBLIC_ int CKTSO2_L_CleanUpGarbage(__cktso_l_wrapper *wrapper)
 _PUBLIC_ int CKTSO2_L_Determinant(__cktso_l_wrapper *wrapper, double *mantissa, double *exponent)
 {
 	return CKTSO_L_Determinant(wrapper->handle, mantissa, exponent);
+}
+
+_PUBLIC_ int CKTSO2_L_FactorizeAndSolve(__cktso_l_wrapper *wrapper, const double ax[], const double b[], double x[], bool row0_column1)
+{
+	return CKTSO_L_FactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
+}
+
+_PUBLIC_ int CKTSO2_L_RefactorizeAndSolve(__cktso_l_wrapper *wrapper, const double ax[], const double b[], double x[], bool row0_column1)
+{
+	return CKTSO_L_RefactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
 }
