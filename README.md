@@ -22,6 +22,12 @@ Only x86-64 libraries are provided. This means that, a 64-bit Windows or Linux o
 Functions for both 32-bit integers and 64-bit integers are provided. The latter has '_L' in the function names. The integer bitwidth only limits the size of the input matrix. The internal data structures always use 64-bit integers.
 
 
+Easy to Test
+============
+CKTSO is easy to test. Only a single header file and a single shared-library are needed. No need to configure the header file or any macro definition. No additional dependency is needed. Only a few simple steps to compile and run the demos.
+
+
+
 Publications
 ============
 [1] Xiaoming Chen, "Numerically-Stable and Highly-Scalable Parallel LU Factorization for Circuit Simulation", in 2022 International Conference On Computer Aided Design (ICCAD'22).
