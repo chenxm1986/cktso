@@ -20,7 +20,7 @@ Performance Results
 ============
 Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the results of CKTSO and comparisons with other solvers (including both CPU- and GPU-based solvers). On average, CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices.
 
-**A quick comparison impression:** compared with the popular circuit solver KLU (sequential, using approximate minimum degree ordering), CKTSO is on average >3X faster when sequential and <u>>25X faster when using 16 threads</u>, based on the results of 66 circuit matrices from SuiteSparse matrix collection (dimensions from 1K to 5M).
+**A quick comparison impression:** compared with the popular circuit solver KLU (sequential, using approximate minimum degree ordering), CKTSO is on average >3X faster when sequential and <u> >25X faster when using 16 threads </u>, based on the results of 66 circuit matrices from SuiteSparse matrix collection (dimensions from 1K to 5M).
 
 
 Notes on Library and Integer Bitwidths
