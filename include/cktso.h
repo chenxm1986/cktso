@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20230325
+* version 20231101
 */
 
 #ifndef __CKTSO__
@@ -32,17 +32,18 @@
 /********** input parameters int [] **********
 * input parm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
 * input parm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
-* input parm[2]:  ordering method. [default 0]: select best from 8 methods | 1~8: corresponding single method | two digits in decimalism (20<=x0<=80) means selecting best from first x methods | <0: no ordering
+* input parm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants 
+                  | 12~18: select best from (parm[2]-10) minimum degree variants | <0: no ordering
 * input parm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
 * input parm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
 * input parm[5]:  max supernode size. [default -1]: no limitation
 * input parm[6]:  minimum # of columns for supernode detection. [default 64]
 * input parm[7]:  scaling. [default 0]: no scaling
 * input parm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
-* input parm[9]:  automatic thread number control. [default 1]
+* input parm[9]:  automatic thread number control based on matrix features. [default 1]
 * input parm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * input parm[11]: initial # of rows for supernode creation. [default 16]
-* input parm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze when ax=NULL). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
+* input parm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze with ax=NULL specified). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
 * input parm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
 * input parm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
 ********************************/
