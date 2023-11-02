@@ -7,7 +7,7 @@ CKTSO is a high-performance **parallel sparse direct solver specially designed f
 + a new memory allocation strategy that minimizes memory usage; 
 + parallel forward and backward substitutions;
 + novel **nested dissection ordering**, which reduces the number of floating-point operations by up to several times for post-layout/mesh-style circuits, and it also produces fewer floating-point operations than METIS;
-+ novel minimum degree variants, which reduce about 30-40% floating-point operations compared with mainstream methods (e.g., approximate minimum degree);
++ novel **minimum degree variants**, which reduce about 30% floating-point operations compared with mainstream methods (e.g., approximate minimum degree);
 + an adaptive numerical kernel selection method.
 
 CKTSO supports both real and complex matrices. Both row and column modes are supported.
