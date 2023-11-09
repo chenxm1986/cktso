@@ -1,3 +1,7 @@
+Update 20231108
+* Reduced memory usage for nested dissection ordering
+* Optimized nested dissection parameters
+
 Version 20231101
 This is a major update with two new important features:
 * Nested dissection ordering added. The novel nested dissection ordering method produces much fewer fill-ins and operations than minimum degree variants for post-layout/mesh-like circuits. It also produces fewer operations than METIS on average.
