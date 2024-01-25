@@ -117,6 +117,16 @@ _PUBLIC_ int CKTSO2_RefactorizeAndSolve(__cktso_wrapper *wrapper, const double a
 	return CKTSO_RefactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
 }
 
+_PUBLIC_ int CKTSO2_Analyze2(__cktso_wrapper *wrapper, bool is_complex, int n, const int ap[], const int ai[], const double ax[], int threads, int rperm[], int cperm[], double rscale[], double cscale[])
+{
+	return CKTSO_Analyze2(wrapper->handle, is_complex, n, ap, ai, ax, threads, rperm, cperm, rscale, cscale);
+}
+
+_PUBLIC_ int CKTSO2_ExtractFactors(__cktso_wrapper *wrapper, size_t lp[], int li[], double lx[], size_t up[], int ui[], double ux[], int rperm[], int cperm[], double rscale[], double cscale[])
+{
+	return CKTSO_ExtractFactors(wrapper->handle, lp, li, lx, up, ui, ux, rperm, cperm, rscale, cscale);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct
 {
@@ -221,4 +231,14 @@ _PUBLIC_ int CKTSO2_L_FactorizeAndSolve(__cktso_l_wrapper *wrapper, const double
 _PUBLIC_ int CKTSO2_L_RefactorizeAndSolve(__cktso_l_wrapper *wrapper, const double ax[], const double b[], double x[], bool row0_column1)
 {
 	return CKTSO_L_RefactorizeAndSolve(wrapper->handle, ax, b, x, row0_column1);
+}
+
+_PUBLIC_ int CKTSO2_L_Analyze2(__cktso_l_wrapper *wrapper, bool is_complex, long long n, const long long ap[], const long long ai[], const double ax[], int threads, long long rperm[], long long cperm[], double rscale[], double cscale[])
+{
+	return CKTSO_L_Analyze2(wrapper->handle, is_complex, n, ap, ai, ax, threads, rperm, cperm, rscale, cscale);
+}
+
+_PUBLIC_ int CKTSO2_L_ExtractFactors(__cktso_l_wrapper *wrapper, size_t lp[], long long li[], double lx[], size_t up[], long long ui[], double ux[], long long rperm[], long long cperm[], double rscale[], double cscale[])
+{
+	return CKTSO_L_ExtractFactors(wrapper->handle, lp, li, lx, up, ui, ux, rperm, cperm, rscale, cscale);
 }

@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20231101
+* version 20240124
 */
 
 #ifndef __CKTSO__
@@ -29,42 +29,42 @@
 * -100: unknown error
 ********************************/
 
-/********** input parameters int [] **********
-* input parm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
-* input parm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
-* input parm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants 
-                  | 12~18: select best from (parm[2]-10) minimum degree variants | <0: no ordering
-* input parm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
-* input parm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
-* input parm[5]:  max supernode size. [default -1]: no limitation
-* input parm[6]:  minimum # of columns for supernode detection. [default 64]
-* input parm[7]:  scaling. [default 0]: no scaling
-* input parm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
-* input parm[9]:  automatic thread number control based on matrix features. [default 1]
-* input parm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
-* input parm[11]: initial # of rows for supernode creation. [default 16]
-* input parm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze with ax=NULL specified). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
-* input parm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
-* input parm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
+/********** input parameters int iparm[] **********
+* iparm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
+* iparm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
+* iparm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants 
+             | 12~18: select best from (parm[2]-10) minimum degree variants | <0: no ordering
+* iparm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
+* iparm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
+* iparm[5]:  max supernode size. [default -1]: no limitation
+* iparm[6]:  minimum # of columns for supernode detection. [default 64]
+* iparm[7]:  scaling. [default 0]: no scaling
+* iparm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
+* iparm[9]:  automatic thread number control based on matrix features. [default 1]
+* iparm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
+* iparm[11]: initial # of rows for supernode creation. [default 16]
+* iparm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze with ax=NULL specified). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
+* iparm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
+* iparm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
 ********************************/
 
-/********** output parameters long long [] **********
-* output parm[0]:  time (in microsecond/us) of CKTSO(_L)_Analyze
-* output parm[1]:  time (in microsecond/us) of CKTSO(_L)_Factorize or CKTSO(_L)_Refactorize
-* output parm[2]:  time (in microsecond/us) of CKTSO(_L)_Solve or CKTSO(_L)_SolveMV
-* output parm[3]:  time (in microsecond/us) of CKTSO(_L)_SortFactors
-* output parm[4]:  # of off-diagonal pivots
-* output parm[5]:  nnz(L), including diagonal
-* output parm[6]:  nnz(U), excluding diagonal
-* output parm[7]:  # of supernodes
-* output parm[8]:  selected ordering method
-* output parm[9]:  singular row index when -6 is returned
-* output parm[10]: # of realloc invoked during factor
-* output parm[11]: memory requirement (in bytes) when -4 is returned (for the last malloc/realloc failure)
-* output parm[12]: current memory usage (in bytes)
-* output parm[13]: maximum memory usage (in bytes)
-* output parm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
-* output parm[15]: time (in microsecond/us) of CKTSO(_L)_FactorizeAndSolve or CKTSO(_L)_RefactorizeAndSolve
+/********** output parameters long long oparm[] **********
+* oparm[0]:  time (in microsecond/us) of CKTSO(_L)_Analyze
+* oparm[1]:  time (in microsecond/us) of CKTSO(_L)_Factorize or CKTSO(_L)_Refactorize
+* oparm[2]:  time (in microsecond/us) of CKTSO(_L)_Solve or CKTSO(_L)_SolveMV
+* oparm[3]:  time (in microsecond/us) of CKTSO(_L)_SortFactors
+* oparm[4]:  # of off-diagonal pivots
+* oparm[5]:  nnz(L), including diagonal
+* oparm[6]:  nnz(U-I), excluding diagonal (U's diagonal elements are all 1.0)
+* oparm[7]:  # of supernodes
+* oparm[8]:  selected ordering method
+* oparm[9]:  singular row index when -6 is returned
+* oparm[10]: # of realloc invoked during factor
+* oparm[11]: memory requirement (in bytes) when -4 is returned (for the last malloc/realloc failure)
+* oparm[12]: current memory usage (in bytes)
+* oparm[13]: maximum memory usage (in bytes)
+* oparm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
+* oparm[15]: time (in microsecond/us) of CKTSO(_L)_FactorizeAndSolve or CKTSO(_L)_RefactorizeAndSolve
 ********************************/
 
 #ifndef __cplusplus
@@ -252,6 +252,60 @@ struct __cktso_dummy
         _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool row0_column1
     ) = 0;
+
+    /*
+    * Analyze2: analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
+    * @is_complex: complex or real
+    * @n: matrix dimension
+    * @ap: integer array of length n+1, matrix row pointers
+    * @ai: integer array of length ap[n], matrix column indexes
+    * @ax: double/complex array of length ap[n], matrix values
+    * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
+    * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+    * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
+    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    */
+    virtual int _CDECL_ Analyze2
+    (
+        _IN_ bool is_complex,
+        _IN_ int n,
+        _IN_ const int ap[],
+        _IN_ const int ai[],
+        _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
+        _IN_ int threads, /*0=use all physical cores. -1=use all logical cores*/
+        _OUT_ int rperm[], /*can be NULL if not needed*/
+        _OUT_ int cperm[], /*can be NULL if not needed*/
+        _OUT_ double rscale[], /*can be NULL if not needed*/
+        _OUT_ double cscale[] /*can be NULL if not needed*/
+    ) = 0;
+
+    /*
+    * ExtractFactors: extracts LU factors (L is with diagonal and U is without diagonal) (call this routine after matrix has been factorized with pivoting).
+    * @lp: pre-allocated buffer for extracting L's row pointers (length n+1)
+    * @li: pre-allocated buffer for extracting L's column indexes (length oparm[5])
+    * @lx: pre-allocated buffer for extracting L's values (length oparm[5] for double or oparm[5]*2 for complex)
+    * @up: pre-allocated buffer for extracting U's row pointers (length n+1)
+    * @ui: pre-allocated buffer for extracting U's column indexes (length oparm[6])
+    * @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
+    * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+    * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
+    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    */
+    virtual int _CDECL_ ExtractFactors
+    (
+        _OUT_ size_t lp[],
+        _OUT_ int li[],
+        _OUT_ double lx[], /*can be NULL if not needed*/
+        _OUT_ size_t up[],
+        _OUT_ int ui[],
+        _OUT_ double ux[], /*can be NULL if not needed*/
+        _OUT_ int rperm[], /*can be NULL if not needed*/
+        _OUT_ int cperm[], /*can be NULL if not needed*/
+        _OUT_ double rscale[], /*can be NULL if not needed*/
+        _OUT_ double cscale[] /*can be NULL if not needed*/
+    ) = 0;
 };
 
 struct __cktso_l_dummy
@@ -408,6 +462,60 @@ struct __cktso_l_dummy
         _IN_ const double b[],
         _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
         _IN_ bool row0_column1
+    ) = 0;
+
+    /*
+    * Analyze2: analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
+    * @is_complex: complex or real
+    * @n: matrix dimension
+    * @ap: integer array of length n+1, matrix row pointers
+    * @ai: integer array of length ap[n], matrix column indexes
+    * @ax: double/complex array of length ap[n], matrix values
+    * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
+    * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+    * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
+    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    */
+    virtual int _CDECL_ Analyze2
+    (
+        _IN_ bool is_complex,
+        _IN_ long long n,
+        _IN_ const long long ap[],
+        _IN_ const long long ai[],
+        _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
+        _IN_ int threads, /*0=use all physical cores. -1=use all logical cores*/
+        _OUT_ long long rperm[], /*can be NULL if not needed*/
+        _OUT_ long long cperm[], /*can be NULL if not needed*/
+        _OUT_ double rscale[], /*can be NULL if not needed*/
+        _OUT_ double cscale[] /*can be NULL if not needed*/
+    ) = 0;
+
+    /*
+    * ExtractFactors: extracts LU factors (L is with diagonal and U is without diagonal) (call this routine after matrix has been factorized with pivoting).
+    * @lp: pre-allocated buffer for extracting L's row pointers (length n+1)
+    * @li: pre-allocated buffer for extracting L's column indexes (length oparm[5])
+    * @lx: pre-allocated buffer for extracting L's values (length oparm[5] for double or oparm[5]*2 for complex)
+    * @up: pre-allocated buffer for extracting U's row pointers (length n+1)
+    * @ui: pre-allocated buffer for extracting U's column indexes (length oparm[6])
+    * @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
+    * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+    * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
+    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    */
+    virtual int _CDECL_ ExtractFactors
+    (
+        _OUT_ size_t lp[],
+        _OUT_ long long li[],
+        _OUT_ double lx[], /*can be NULL if not needed*/
+        _OUT_ size_t up[],
+        _OUT_ long long ui[],
+        _OUT_ double ux[], /*can be NULL if not needed*/
+        _OUT_ long long rperm[], /*can be NULL if not needed*/
+        _OUT_ long long cperm[], /*can be NULL if not needed*/
+        _OUT_ double rscale[], /*can be NULL if not needed*/
+        _OUT_ double cscale[] /*can be NULL if not needed*/
     ) = 0;
 };
 #endif/*__cplusplus*/
@@ -709,6 +817,92 @@ int CKTSO_L_RefactorizeAndSolve
     _IN_ const double b[],
     _OUT_ double x[], /*x address can be same as b address for overwriting x on b*/
     _IN_ bool row0_column1
+);
+
+/*
+* CKTSO_Analyze2 (CKTSO_L_Analyze2): analyzes matrix for static pivoting and fillin-reduction ordering. Previous matrix is first destroyed and then new matrix is created.
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @is_complex: complex or real
+* @n: matrix dimension
+* @ap: integer array of length n+1, matrix row pointers
+* @ai: integer array of length ap[n], matrix column indexes
+* @ax: double/complex array of length ap[n], matrix values
+* @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
+* @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+* @cperm: pre-allocated buffer for extracting column permutation vector (length n)
+* @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+* @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+*/
+int CKTSO_Analyze2
+(
+    _IN_ ICktSo inst,
+    _IN_ bool is_complex,
+    _IN_ int n,
+    _IN_ const int ap[],
+    _IN_ const int ai[],
+    _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
+    _IN_ int threads, /*0=use all physical cores. -1=use all logical cores*/
+    _OUT_ int rperm[], /*can be NULL if not needed*/
+    _OUT_ int cperm[], /*can be NULL if not needed*/
+    _OUT_ double rscale[], /*can be NULL if not needed*/
+    _OUT_ double cscale[] /*can be NULL if not needed*/
+);
+int CKTSO_L_Analyze2
+(
+    _IN_ ICktSo_L inst,
+    _IN_ bool is_complex,
+    _IN_ long long n,
+    _IN_ const long long ap[],
+    _IN_ const long long ai[],
+    _IN_ const double ax[], /*can be NULL if unavailable when analysis*/
+    _IN_ int threads, /*0=use all physical cores. -1=use all logical cores*/
+    _OUT_ long long rperm[], /*can be NULL if not needed*/
+    _OUT_ long long cperm[], /*can be NULL if not needed*/
+    _OUT_ double rscale[], /*can be NULL if not needed*/
+    _OUT_ double cscale[] /*can be NULL if not needed*/
+);
+
+/*
+* CKTSO_ExtractFactors (CKTSO_L_ExtractFactors): extracts LU factors (L is with diagonal and U is without diagonal) (call this routine after matrix has been factorized with pivoting).
+* @inst: solver instance handle returned by CKTSO_CreateSolver (CKTSO_L_CreateSolver)
+* @lp: pre-allocated buffer for extracting L's row pointers (length n+1)
+* @li: pre-allocated buffer for extracting L's column indexes (length oparm[5])
+* @lx: pre-allocated buffer for extracting L's values (length oparm[5] for double or oparm[5]*2 for complex)
+* @up: pre-allocated buffer for extracting U's row pointers (length n+1)
+* @ui: pre-allocated buffer for extracting U's column indexes (length oparm[6])
+* @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
+* @rperm: pre-allocated buffer for extracting row permutation vector (length n)
+* @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
+* @rscale: pre-allocated buffer for extracting row scaling vector (length n)
+* @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+*/
+int CKTSO_ExtractFactors
+(
+    _IN_ ICktSo inst,
+    _OUT_ size_t lp[],
+    _OUT_ int li[],
+    _OUT_ double lx[], /*can be NULL if not needed*/
+    _OUT_ size_t up[],
+    _OUT_ int ui[],
+    _OUT_ double ux[], /*can be NULL if not needed*/
+    _OUT_ int rperm[], /*can be NULL if not needed*/
+    _OUT_ int cperm[], /*can be NULL if not needed*/
+    _OUT_ double rscale[], /*can be NULL if not needed*/
+    _OUT_ double cscale[] /*can be NULL if not needed*/
+);
+int CKTSO_L_ExtractFactors
+(
+    _IN_ ICktSo_L inst,
+    _OUT_ size_t lp[],
+    _OUT_ long long li[],
+    _OUT_ double lx[], /*can be NULL if not needed*/
+    _OUT_ size_t up[],
+    _OUT_ long long ui[],
+    _OUT_ double ux[], /*can be NULL if not needed*/
+    _OUT_ long long rperm[], /*can be NULL if not needed*/
+    _OUT_ long long cperm[], /*can be NULL if not needed*/
+    _OUT_ double rscale[], /*can be NULL if not needed*/
+    _OUT_ double cscale[] /*can be NULL if not needed*/
 );
 
 #ifdef __cplusplus

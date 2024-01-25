@@ -1,11 +1,15 @@
+Version 20240124
+* Added a function to get matrix pre-processing results
+* Added a function to get LU factors
+
 Update 20231108
 * Reduced memory usage for nested dissection ordering
 * Optimized nested dissection parameters
 
 Version 20231101
 This is a major update with two new important features:
-* Nested dissection ordering added. The novel nested dissection ordering method produces much fewer fill-ins and operations than minimum degree variants for post-layout/mesh-like circuits. It also produces fewer operations than METIS on average.
-* Support for CSR with duplicated entries added.
+* Nested dissection ordering added. The novel nested dissection ordering method produces much fewer fill-ins and operations than minimum degree variants for post-layout/mesh-like circuits. It also produces fewer operations than METIS on average
+* Support for CSR with duplicated entries added
 
 Version 20230325
 * Fixed a bug in fast factorization
