@@ -264,7 +264,7 @@ struct __cktso_dummy
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
     * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
     */
     virtual int _CDECL_ Analyze2
     (
@@ -291,7 +291,7 @@ struct __cktso_dummy
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
     * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
     */
     virtual int _CDECL_ ExtractFactors
     (
@@ -475,7 +475,7 @@ struct __cktso_l_dummy
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
     * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
     */
     virtual int _CDECL_ Analyze2
     (
@@ -502,7 +502,7 @@ struct __cktso_l_dummy
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
     * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
     */
     virtual int _CDECL_ ExtractFactors
     (
@@ -831,7 +831,7 @@ int CKTSO_L_RefactorizeAndSolve
 * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
 * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
 * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-* @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+* @cscale: pre-allocated buffer for extracting column scaling vector (length n)
 */
 int CKTSO_Analyze2
 (
@@ -874,7 +874,7 @@ int CKTSO_L_Analyze2
 * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
 * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
 * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-* @cscale: pre-allocated buffer for extracting column permutation vector (length n)
+* @cscale: pre-allocated buffer for extracting column scaling vector (length n)
 */
 int CKTSO_ExtractFactors
 (
