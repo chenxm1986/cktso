@@ -107,7 +107,7 @@ int main()
     printf("Memory usage = %lld bytes.\n", oparm[12]);
     printf("Max memory usage = %lld bytes.\n", oparm[13]);
     long long f1, f2;
-    ret = instance->Statistics(&f1, &f2, NULL, NULL, false);
+    ret = instance->Statistics(&f1, &f2, NULL, NULL, false, -1, false);
     if (ret < 0)
     {
         printf("Failed to retrieve statistics information, return code = %d.\n", ret);

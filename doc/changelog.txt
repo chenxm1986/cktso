@@ -1,3 +1,8 @@
+Version 20240630
+* Added dynamic thread number adjustment based on system workload
+* Added more arguments to CKTSO_Statistics
+* Updated wrapper functions
+
 Version 20240124
 * Added a function to get matrix pre-processing results
 * Added a function to get LU factors

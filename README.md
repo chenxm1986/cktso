@@ -37,9 +37,9 @@ Functions for both 32-bit integers and 64-bit integers are provided. The latter 
 Working Directions
 ============
 I am now working on the following directions to further improve CKTSO:
-+ automated thread number control based on system workload;
++ automated thread number control based on system workload (supported from 20240630);
 + handling duplicated entries in input CSR format (supported from 20231101);
-+ ordering for post-layout,  power grid, and mesh-like matrices (supported from 20231101).
++ ordering for post-layout, power grid, and mesh-like matrices (supported from 20231101).
 
 
 

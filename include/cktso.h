@@ -3,7 +3,7 @@
 */
 
 /*
-* version 20240124
+* version 20240630
 */
 
 #ifndef __CKTSO__
@@ -44,8 +44,8 @@
 * iparm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * iparm[11]: initial # of rows for supernode creation. [default 16]
 * iparm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze with ax=NULL specified). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
-* iparm[13]: sync method. [default >=0]: blocked wait | <0: busy wait
-* iparm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default: -1] inf (block until threads exit)
+* iparm[13]: threads sync & adjust method. [default 0]: blocked wait | >0: blocked wait & dynamic thread number control based on system workload (value means time interval in 100 milliseconds for dynamic adjustment) | <0: busy wait
+* iparm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default -1] inf (block until threads exit)
 ********************************/
 
 /********** output parameters long long oparm[] **********
@@ -65,6 +65,8 @@
 * oparm[13]: maximum memory usage (in bytes)
 * oparm[14]: # of rows completed with pivoting reuse in CKTSO(_L)_Factorize
 * oparm[15]: time (in microsecond/us) of CKTSO(_L)_FactorizeAndSolve or CKTSO(_L)_RefactorizeAndSolve
+* oparm[16]: predicted nnz(L+U-I) by symbolic analysis
+* oparm[17]: predicted flops by symbolic analysis (MAC=2 flops)
 ********************************/
 
 #ifndef __cplusplus
@@ -195,14 +197,18 @@ struct __cktso_dummy
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
     * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
     * @row0_column1: row or column mode (affects solve_mem)
+    * @scaling: whether scaling is counted in flops & memory access
+    * @fuse_mac: whether multiply-and-accumulate is counted as a single fused operation
     */
     virtual int _CDECL_ Statistics
     (
-        _OUT_ long long *factor_flops, 
-        _OUT_ long long *solve_flops, 
-        _OUT_ long long *factor_mem, 
-        _OUT_ long long *solve_mem, 
-        _IN_ bool row0_column1
+        _OUT_ long long *factor_flops, /*can be NULL if not needed*/
+        _OUT_ long long *solve_flops, /*can be NULL if not needed*/
+        _OUT_ long long *factor_mem, /*can be NULL if not needed*/
+        _OUT_ long long *solve_mem, /*can be NULL if not needed*/
+        _IN_ bool row0_column1,
+        _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+        _IN_ bool fuse_mac
     ) = 0;
 
     /*
@@ -406,14 +412,18 @@ struct __cktso_l_dummy
     * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
     * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
     * @row0_column1: row or column mode (affects solve_mem)
+    * @scaling: whether scaling is counted in flops & memory access
+    * @fuse_mac: whether multiply-and-accumulate is counted as a single fused operation
     */
     virtual int _CDECL_ Statistics
     (
-        _OUT_ long long *factor_flops, 
-        _OUT_ long long *solve_flops, 
-        _OUT_ long long *factor_mem, 
-        _OUT_ long long *solve_mem, 
-        _IN_ bool row0_column1
+        _OUT_ long long *factor_flops, /*can be NULL if not needed*/
+        _OUT_ long long *solve_flops, /*can be NULL if not needed*/
+        _OUT_ long long *factor_mem, /*can be NULL if not needed*/
+        _OUT_ long long *solve_mem, /*can be NULL if not needed*/
+        _IN_ bool row0_column1,
+        _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+        _IN_ bool fuse_mac
     ) = 0;
 
     /*
@@ -717,24 +727,30 @@ int CKTSO_L_SortFactors
 * @factor_mem: pointer to a 64b integer to retrieve memory access volume of factor in bytes
 * @solver_mem: pointer to a 64b integer to retrieve memory access volume of solve in bytes
 * @row0_column1: row or column mode (affects solve_mem)
+* @scaling: whether scaling is counted in flops & memory access
+* @fuse_mac: whether multiply-and-accumulate is counted as a single fused operation
 */
 int CKTSO_Statistics
 (
     _IN_ ICktSo inst, 
-    _OUT_ long long *factor_flops, 
-    _OUT_ long long *solve_flops, 
-    _OUT_ long long *factor_mem, 
-    _OUT_ long long *solve_mem, 
-    _IN_ bool row0_column1
+    _OUT_ long long *factor_flops, /*can be NULL if not needed*/
+    _OUT_ long long *solve_flops, /*can be NULL if not needed*/
+    _OUT_ long long *factor_mem, /*can be NULL if not needed*/
+    _OUT_ long long *solve_mem, /*can be NULL if not needed*/
+    _IN_ bool row0_column1,
+    _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+    _IN_ bool fuse_mac
 );
 int CKTSO_L_Statistics
 (
     _IN_ ICktSo_L inst,
-    _OUT_ long long *factor_flops, 
-    _OUT_ long long *solve_flops, 
-    _OUT_ long long *factor_mem, 
-    _OUT_ long long *solve_mem, 
-    _IN_ bool row0_column1
+    _OUT_ long long *factor_flops, /*can be NULL if not needed*/
+    _OUT_ long long *solve_flops, /*can be NULL if not needed*/
+    _OUT_ long long *factor_mem, /*can be NULL if not needed*/
+    _OUT_ long long *solve_mem, /*can be NULL if not needed*/
+    _IN_ bool row0_column1,
+    _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+    _IN_ bool fuse_mac
 );
 
 /*

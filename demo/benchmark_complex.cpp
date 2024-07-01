@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
     printf("NNZ(L) = %lld, NNZ(U) = %lld.\n", oparm[5], oparm[6]);
 
     long long f1, f2;
-    instance->Statistics(&f1, &f2, NULL, NULL, false);
+    instance->Statistics(&f1, &f2, NULL, NULL, false, -1, false);
     printf("Factorization flops = %lld, solve flops = %lld.\n", f1, f2);
 
     double mantissa[2], exponent;
