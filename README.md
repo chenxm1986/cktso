@@ -19,9 +19,11 @@ CKTSO has an associated **GPU acceleration** module, [CKTSO-GPU](https://github.
 
 Performance Results
 ============
-**A quick comparison impression:** compared with the popular circuit solver KLU (sequential, using approximate minimum degree ordering), CKTSO is on average *>3X faster when sequential* and *>25X faster when using 16 threads*, based on the results of 66 circuit matrices from SuiteSparse matrix collection (dimensions from 1K to 5M).
+CKTSO is extremely fast. For most circuit matrices from [SuiteSparse Matrix Collection](https://sparse.tamu.edu/), CKTSO needs only **a few to tens of milliseconds** to solve.
 
-Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the detailed performance comparisons with other solvers (including both CPU- and GPU-based solvers). On average, CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices. These results are from an old version.
+Compared with the popular circuit solver KLU (sequential, using approximate minimum degree ordering), CKTSO is on average *>3X faster when sequential* and *>25X faster when using 16 threads*, based on the results of 66 circuit matrices from SuiteSparse matrix collection (dimensions from 1K to 5M).
+
+Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results.pdf) for the detailed performance comparisons with other solvers (including both CPU- and GPU-based solvers). On average, CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices. The results of CKTSO are from an old version.
 
 CKTSO achieves the fewest operations on average by the novel ordering methods, compared with other mainstream ordering methods such as approximate minimum degree and METIS. Please refer to [doc/ordering.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/ordering.pdf) for detailed comparisons.
 
