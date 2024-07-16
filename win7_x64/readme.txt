@@ -1,1 +1,0 @@
-The libraries compiled for Windows 7 can also be used on Windows 10 and Windows 11.
