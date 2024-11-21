@@ -67,6 +67,7 @@
 * oparm[15]: time (in microsecond/us) of CKTSO(_L)_FactorizeAndSolve or CKTSO(_L)_RefactorizeAndSolve
 * oparm[16]: predicted nnz(L+U-I) by symbolic analysis
 * oparm[17]: predicted flops by symbolic analysis (MAC=2 flops)
+* oparm[18]: thread numbers stored in 4 shorts, from lowest to highest: physical core number, logical core number, number of created threads, and number of used threads
 ********************************/
 
 #ifndef __cplusplus

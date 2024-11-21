@@ -48,7 +48,9 @@ I am now working on the following directions to further improve CKTSO:
 
 Publications
 ============
-[1] Xiaoming Chen, "Numerically-Stable and Highly-Scalable Parallel LU Factorization for Circuit Simulation", in 2022 International Conference On Computer Aided Design (ICCAD'22).
+[1] Xiaoming Chen, "CKTSO: High-Performance Parallel Sparse Linear Solver for General Circuit Simulations", IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (IEEE TCAD).
+
+[2] Xiaoming Chen, "Numerically-Stable and Highly-Scalable Parallel LU Factorization for Circuit Simulation", in 2022 International Conference On Computer Aided Design (ICCAD'22).
 
 Author
 ============

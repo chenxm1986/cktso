@@ -1,3 +1,6 @@
+Update 20241121
+* Added a parameter to get number of threads
+
 Update 20240716
 * Single Windows library for Windows 7, 8, 10, 11, ...
 
