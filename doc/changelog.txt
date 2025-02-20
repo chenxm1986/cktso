@@ -1,3 +1,6 @@
+Version 20250218
+* Updated nested dissection ordering
+
 Update 20241121
 * Added a parameter to get number of threads
 

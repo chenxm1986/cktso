@@ -1,9 +1,10 @@
 /*
-* CKTSO is a high-performance parallel linear system solver for SPICE-based circuit simulations.
+* CKTSO is a high-performance parallel linear system solver for SPICE-based circuit simulations
+* especially for OP and TRAN simulations of large-scale nonlinear circuits
 */
 
 /*
-* version 20240630
+* version 20250218
 */
 
 #ifndef __CKTSO__
@@ -33,7 +34,7 @@
 * iparm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
 * iparm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
 * iparm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants 
-             | 12~18: select best from (parm[2]-10) minimum degree variants | <0: no ordering
+             | 12~18: select best from (iparm[2]-10) minimum degree variants | <0: no ordering
 * iparm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
 * iparm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
 * iparm[5]:  max supernode size. [default -1]: no limitation
