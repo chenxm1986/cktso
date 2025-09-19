@@ -6,7 +6,7 @@ Linux:
 
 Windows:
 	Create a console application project with Visual Studio and add one of the *.cpp files into the project. 
-	Put cktso.h and cktso.lib (for *.cpp except demo_l.cpp) or cktso_l.lib (for demo_l.cpp) in the project folder. The *.lib file is required during complilation.
+	Put cktso.h and cktso.lib (for *.cpp except demo_l.cpp) or cktso_l.lib (for demo_l.cpp) in the project folder. The *.lib file is required during compilation.
 	Compile the project.
 	Put cktso.dll (for *.cpp except demo_l.cpp) or cktso_l.dll (for demo_l.cpp) together with the generated executable file. The *.dll file is required for running.
 	Put the license key file together with the *.dll file.
