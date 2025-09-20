@@ -1,5 +1,6 @@
 Version 20250918
 * Fixed a bug in thread scheduling
+* Updated nested dissection ordering
 
 Version 20250218
 * Updated nested dissection ordering
