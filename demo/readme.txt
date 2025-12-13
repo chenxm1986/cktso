@@ -1,6 +1,6 @@
 Linux: 
 	Simply type in "make" to compile the demos.
-	Set the environment variable "LD_LIBRARY_PATH" to the correct path that contains the *.so file (e.g., export LD_LIBRARY_PATH=../centos6_x64_gcc482).
+	Set the environment variable "LD_LIBRARY_PATH" to the correct path that contains the *.so file (e.g., export LD_LIBRARY_PATH=../centos6_x64_gcc482:$LD_LIBRARY_PATH).
 	Put the license key file together with the *.so file.
 	Run the demos.
 
