@@ -1,5 +1,8 @@
+Version 20260215
+* Performance improvement for solver creation
+
 Version 20260116
-* Performance improvement
+* Performance improvement for some types of matrices
 
 Version 20251212
 * Updated nested dissection ordering
