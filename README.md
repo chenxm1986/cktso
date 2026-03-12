@@ -20,7 +20,7 @@ Design Philosophy
 ======================
 The primary goal of CKTSO is actually **accuracy**, because in practice the matrices created from some circuits can be quite ill-conditioned. This is the reason of CKTSO factorizing the matrix as a whole instead of partitioning the matrix. Partitioning a matrix into a BBD format using nested dissection can significantly improve the parallel scalability and cache hit ratio. However, such methods can lead to a reduced pivoting range which will impair the accuracy, especially for ill-conditioned matrices, and sometimes there will be no valid pivot, which will cause factorization failure. These situations have been observed in practical circuit simulations. Another disadvantage of such partitioning-based methods is the increased fill-ins for extremely sparse matrices, as nested dissection does not perform well on such matrices.
 
-Also for this reason, CKTSO does not adopt supernode diagonal block pivoting, either. Although such methods can fix the dependency graph which also significantly improves the parallel scalability.
+Also for this reason, CKTSO does not adopt supernode diagonal block pivoting, either, although such methods can fix the dependency graph which also significantly improves the parallel scalability.
 
 The factorization of CKTSO adopts a thresholded partial pivoting method, which selects the pivot from the complete row, just like KLU, ensuring the maximum range of pivot selection. The refactorization of CKTSO does not perform pivoting, also like KLU. The two functions can be safely invoked based on the convergence status of Newton-Raphson iterations in circuit simulation.
 
