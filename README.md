@@ -16,6 +16,14 @@ CKTSO is easy to use. Only a single header file and a single shared-library are 
 
 CKTSO has an associated **GPU acceleration** module, [CKTSO-GPU](https://github.com/chenxm1986/cktso-gpu), by using CUDA. It provides acceleration for re-factorization as well as forward and backward substitutions for slightly-dense circuit matrices.
 
+Design Philosophy
+======================
+The primary goal of CKTSO is actually **accuracy**, because in practice the matrices created from some circuits can be quite ill-conditioned. This is the reason of CKTSO factorizing the matrix as a whole instead of partitioning the matrix. Partitioning a matrix into a BBD format using nested dissection can significantly improve the parallel efficiency and cache hit ratio. However, such methods can lead to a reduced pivoting range which will impair the accuracy, especially for ill-conditioned matrices, and sometimes there will be no valid pivot, which will cause factorization failure. These situations have been observed in practical circuit simulations.
+
+The factorization of CKTSO adopts a thresholded partial pivoting method, which selects the pivot from the complete row, just like KLU, ensuring the maximum range of pivot selection. The refactorization of CKTSO does not perform pivoting, also like KLU. The two functions can be safely invoked based on the convergence status of NR iterations in circuit simulation.
+
+However, the parallel scalability of factorization of CKTSO is quite bad, although it is typically invoked very few times. To improve this, CKTSO uses some tricks inspired from the idea of refactorization. It seeks to maximize symbolic pattern reuse by skipping pivoting; however, it keeps checking pivots during factorization. Once an unacceptable pivot is found, it reverts to partial pivoting starting from a proper row to minimize the impact of bad pivots. This is called fast factorization in CKTSO, which can be a replacement of factorization. The fast factorization can achieve similar parallel scalability to refactorization most of the time.
+
 
 Performance Results
 ============
@@ -26,6 +34,9 @@ Compared with the popular circuit solver KLU (sequential, using approximate mini
 Please refer to [doc/results.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/results(version202205).pdf) for the detailed performance comparisons with other solvers (including both CPU- and GPU-based solvers). On average, CKTSO is faster than KLU, NICSLU, Intel MKL PARDISO and two GPU-based sparse solvers for circuit matrices. The results of CKTSO are from an old version.
 
 CKTSO achieves the fewest operations on average by the novel ordering methods, compared with other mainstream ordering methods such as approximate minimum degree and METIS. Please refer to [doc/ordering.pdf](https://github.com/chenxm1986/cktso/blob/master/doc/ordering(version20231101).pdf) for detailed comparisons.
+
+
+
 
 
 
