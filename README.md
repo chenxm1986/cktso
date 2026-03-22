@@ -20,6 +20,8 @@ Design Philosophy
 ======================
 CKTSO is designed for **practical** circuit simulation problems, rather than purely doing researches or publishing papers.
 
+CKTSO is a specialized solver. Though its interface looks like a general-purpose solver, the implementation is specifically optimized for circuit simulation problems.
+
 The primary goal of CKTSO is **accuracy**, and then performance. Accuracy is the top priority because matrices created from some practical circuits can be quite ill-conditioned or sensitive to pivot selection. **The first-time factorization must select pivots from a full range**, to provide a good numerical pattern for subsequent factorizations. This is the reason of CKTSO factorizing a matrix as a whole instead of partitioning the matrix. BBD-based parallelization is a classical method which can improve parallel scalability and cache hit ratio. However, BBD matrices should be built from circuit partitioning, ensuring all subcircuits are solvable, but not from matrix partitioning. Due to the loss of circuit-level information, matrix partitioning can lead to singular submatrices, which will cause factorization failure. This situation has been observed in practical circuit simulations. Another disadvantage of the partitioning-based method (for both circuit- and matrix-level partitioning) is the increased fill-ins, and for some circuits/matrices the increment can be very large.
 
 Also for this reason, CKTSO does not adopt supernode diagonal block pivoting, either, although such methods can fix the dependency graph which also significantly improves the parallel scalability.
