@@ -1,3 +1,8 @@
+Version 20260321
+* Improved performance of ordering
+* Removed requirement of ensuring non-zero diagonals when using natural ordering
+* Added a new scaling method
+
 Version 20260215
 * Performance improvement for solver creation
 

@@ -4,7 +4,7 @@
 */
 
 /*
-* version 20251212
+* version 20260321
 */
 
 #ifndef __CKTSO__
@@ -39,14 +39,13 @@
 * iparm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
 * iparm[5]:  max supernode size. [default -1]: no limitation
 * iparm[6]:  minimum # of columns for supernode detection. [default 64]
-* iparm[7]:  scaling. [default 0]: no scaling
+* iparm[7]:  scaling. [default 0]: no scaling | >0: matching-based scaling | <0: matching-based and column scaling
 * iparm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
 * iparm[9]:  automatic thread number control based on matrix features. [default 1]
 * iparm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * iparm[11]: initial # of rows for supernode creation. [default 16]
 * iparm[12]: static pivoting method (only effective for CKTSO(_L)_Analyze with ax=NULL specified). 0: conventional | >0: fill-in aware | [default <0]: diagonal first
-* iparm[13]: threads sync & adjust method. [default 0]: blocked wait | >0: blocked wait & dynamic thread number control based on system workload (value means time interval in 100 milliseconds for dynamic adjustment) | <0: busy wait
-* iparm[14]: timeout value for waiting for slave threads to exit, in millisecond/ms. [default -1] inf (block until threads exit)
+* iparm[13]: threads sync & adjust method. [default 0]: blocked wait | >0: blocked wait & dynamic thread number control based on system workload (value means time interval in 100 milliseconds for dynamic adjustment) | <0: busy wait (NOT recommended)
 ********************************/
 
 /********** output parameters long long oparm[] **********
