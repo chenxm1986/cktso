@@ -1,3 +1,6 @@
+Version 20261027
+* Improved performance and scalability for column-mode solving
+
 Version 20260321
 * Improved performance of ordering
 * Removed requirement of ensuring non-zero diagonals when using natural ordering
