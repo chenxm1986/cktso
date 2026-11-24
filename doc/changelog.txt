@@ -1,3 +1,7 @@
+Version 20261123
+* Added dynamic scaling
+* iparm[3] and iparm[8] changed
+
 Version 20261027
 * Improved performance and scalability for column-mode solving
 

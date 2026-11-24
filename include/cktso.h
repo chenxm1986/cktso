@@ -4,7 +4,7 @@
 */
 
 /*
-* version 20261027
+* version 20261123
 */
 
 #ifndef __CKTSO__
@@ -33,14 +33,13 @@
 /********** input parameters int iparm[] **********
 * iparm[0]:  timer. [default 0]: no timer | >0: microsecond/us-level timer | <0: millisecond/ms-level timer
 * iparm[1]:  pivoting tolerance (in millionth). [default 1000 (=0.001)]
-* iparm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants 
-             | 12~18: select best from (iparm[2]-10) minimum degree variants | <0: no ordering
-* iparm[3]:  threshold (percentage) for dense node detection in ordering. [default 1000 (=10.0)]
+* iparm[2]:  ordering method. [default 0]: select best from all 10 methods | 1~10: single method | 11: select best from 2 nested dissection variants | 12~18: select best from (iparm[2]-10) minimum degree variants | <0: no ordering
+* iparm[3]:  ordering method switch point. [default 2000]
 * iparm[4]:  metric for ordering method selection. [default >=0]: use flops | <0: use nnz
-* iparm[5]:  max supernode size. [default -1]: no limitation
-* iparm[6]:  minimum # of columns for supernode detection. [default 64]
-* iparm[7]:  scaling. [default 0]: no scaling | >0: matching-based scaling | <0: matching-based and column scaling
-* iparm[8]:  whether right-hand-vector is very sparse (e.g., # of nonzeros < n/10), only effective for sequential column-mode solve. [default 0]
+* iparm[5]:  maximum # of supernode rows. [default -1]: no limitation
+* iparm[6]:  minimum # of supernode columns. [default 64]
+* iparm[7]:  scaling. [default 0]: no scaling | >0: static scaling based on fixed vectors | <0: dynamic scaling based on per-iteration calculated vectors
+* iparm[8]:  static scaling vector calculation method (only effective for iparm[7]>0). [default >=0]: maximum weighted matching | <0: combined column maximum and maximum weighted matching
 * iparm[9]:  automatic thread number control based on matrix features. [default 1]
 * iparm[10]: memory growth ratio (percentage). [default 150 (=1.5)]
 * iparm[11]: initial # of rows for supernode creation. [default 16]
@@ -208,7 +207,7 @@ struct __cktso_dummy
         _OUT_ long long *factor_mem, /*can be NULL if not needed*/
         _OUT_ long long *solve_mem, /*can be NULL if not needed*/
         _IN_ bool row0_column1,
-        _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+        _IN_ char scaling, /*same as iparm[7]: 0 for no scaling, >0 for static scaling, <0 for dynamic scaling*/
         _IN_ bool fuse_mac
     ) = 0;
 
@@ -270,8 +269,8 @@ struct __cktso_dummy
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
-    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+    * @rscale: pre-allocated buffer for extracting static row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting static column scaling vector (length n)
     */
     virtual int _CDECL_ Analyze2
     (
@@ -297,8 +296,8 @@ struct __cktso_dummy
     * @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
-    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+    * @rscale: pre-allocated buffer for extracting static or dynamic row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting static or dynamic column scaling vector (length n)
     */
     virtual int _CDECL_ ExtractFactors
     (
@@ -423,7 +422,7 @@ struct __cktso_l_dummy
         _OUT_ long long *factor_mem, /*can be NULL if not needed*/
         _OUT_ long long *solve_mem, /*can be NULL if not needed*/
         _IN_ bool row0_column1,
-        _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+        _IN_ char scaling, /*same as iparm[7]: 0 for no scaling, >0 for static scaling, <0 for dynamic scaling*/
         _IN_ bool fuse_mac
     ) = 0;
 
@@ -485,8 +484,8 @@ struct __cktso_l_dummy
     * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
-    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+    * @rscale: pre-allocated buffer for extracting static row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting static column scaling vector (length n)
     */
     virtual int _CDECL_ Analyze2
     (
@@ -512,8 +511,8 @@ struct __cktso_l_dummy
     * @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
     * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
     * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
-    * @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-    * @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+    * @rscale: pre-allocated buffer for extracting static or dynamic row scaling vector (length n)
+    * @cscale: pre-allocated buffer for extracting static or dynamic column scaling vector (length n)
     */
     virtual int _CDECL_ ExtractFactors
     (
@@ -739,7 +738,7 @@ int CKTSO_Statistics
     _OUT_ long long *factor_mem, /*can be NULL if not needed*/
     _OUT_ long long *solve_mem, /*can be NULL if not needed*/
     _IN_ bool row0_column1,
-    _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+    _IN_ char scaling, /*same as iparm[7]: 0 for no scaling, >0 for static scaling, <0 for dynamic scaling*/
     _IN_ bool fuse_mac
 );
 int CKTSO_L_Statistics
@@ -750,7 +749,7 @@ int CKTSO_L_Statistics
     _OUT_ long long *factor_mem, /*can be NULL if not needed*/
     _OUT_ long long *solve_mem, /*can be NULL if not needed*/
     _IN_ bool row0_column1,
-    _IN_ char scaling, /*0 for disabled, >0 for enabled, <0 for using solver setting*/
+    _IN_ char scaling, /*same as iparm[7]: 0 for no scaling, >0 for static scaling, <0 for dynamic scaling*/
     _IN_ bool fuse_mac
 );
 
@@ -847,8 +846,8 @@ int CKTSO_L_RefactorizeAndSolve
 * @threads: # of threads to be created for analysis, factor, refactor, solve, and sort
 * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
 * @cperm: pre-allocated buffer for extracting column permutation vector (length n)
-* @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-* @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+* @rscale: pre-allocated buffer for extracting static row scaling vector (length n)
+* @cscale: pre-allocated buffer for extracting static column scaling vector (length n)
 */
 int CKTSO_Analyze2
 (
@@ -890,8 +889,8 @@ int CKTSO_L_Analyze2
 * @ux: pre-allocated buffer for extracting U's values (length oparm[6] for double or oparm[6]*2 for complex)
 * @rperm: pre-allocated buffer for extracting row permutation vector (length n)
 * @cperm: pre-allocated buffer for extracting final column permutation (including pivoting) vector (length n)
-* @rscale: pre-allocated buffer for extracting row scaling vector (length n)
-* @cscale: pre-allocated buffer for extracting column scaling vector (length n)
+* @rscale: pre-allocated buffer for extracting static or dynamic row scaling vector (length n)
+* @cscale: pre-allocated buffer for extracting static or dynamic column scaling vector (length n)
 */
 int CKTSO_ExtractFactors
 (
